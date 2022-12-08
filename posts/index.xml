@@ -31,7 +31,7 @@ On what day was Santa&amp;rsquo;s naughty and nice list stolen? Based on the res
     <item>
       <title>Retired From Hack The Box - Medium Machine</title>
       <link>https://hassan-al-achek.github.io/posts/retired-htb-machine/</link>
-      <pubDate>Tue, 12 Apr 2022 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 12 May 2022 00:00:00 +0000</pubDate>
       
       <guid>https://hassan-al-achek.github.io/posts/retired-htb-machine/</guid>
       <description>Recon: Nmap Scan: Quick Nmap Scan: Open Ports: 80 (http) - 22 (ssh) ~ ❯ nmap 10.10.11.154 Starting Nmap 7.92 ( https://nmap.org ) at 2022-12-07 23:25 CET Nmap scan report for 10.10.11.154 Host is up (0.026s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 2.74 seconds Nmap Full Port Scan: ~ ❯ nmap -p- 10.</description>
