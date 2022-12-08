@@ -114,11 +114,11 @@
 <ul>
 <li>
 <p><strong>Main Page</strong>:
-![[Pasted image 20221207233632.png]]</p>
+<img src="/Pasted-image-20221207233632.png" alt="Image alt"></p>
 </li>
 <li>
 <p>Web Tech Stack:
-![[Pasted image 20221207233725.png]]</p>
+<img src="/Pasted-image-20221207233725.png" alt="Image alt"></p>
 </li>
 <li>
 <p>Using wappalyzer firefox extension we can get intial idea about the web tech stack used:</p>
@@ -129,11 +129,11 @@
 </li>
 <li>
 <p><strong>Contact Us</strong>: - The form seems to not be submitted to the backend server:
-![[Pasted image 20221207234040.png]]</p>
+<img src="/Pasted-image-20221207234040.png" alt="Image alt"></p>
 </li>
 <li>
 <p>Our Services:
-![[Pasted image 20221207234251.png]]</p>
+<img src="/Pasted-image-20221207234251.png" alt="Image alt"></p>
 </li>
 </ul>
 <blockquote>
@@ -156,7 +156,7 @@
 <li>This phrase catched my eyes: This is currently <strong>only open for <em>beta</em> testers</strong> who already purchased an OSTRICH</li>
 <li><strong>For beta testers</strong>: So i decided to tries beta.php or beta.html</li>
 </ul>
-<p>![[Pasted image 20221207235719.png]]</p>
+<p><img src="/Pasted-image-20221207235719.png" alt="Image alt"></p>
 <ul>
 <li><em>beta.html</em>: revealed a new page with file upload functionality (New attack vector)</li>
 </ul>
@@ -167,11 +167,11 @@ Upload License Key File</p>
 <ul>
 <li>If we submit any file, it will be submitted to <code>activate_license.php</code></li>
 </ul>
-<p>![[Pasted image 20221208000157.png]]</p>
+<p><img src="/Pasted-image-20221208000157.png" alt="Image alt"></p>
 <blockquote>
-<p><em>you can enable your OSTRICH license for usage with EMUEMU via the <strong>activate_license</strong> application today for our upcoming beta testing program for EMUEMU.</em></p>
+<p>you can enable your OSTRICH license for usage with EMUEMU via the <strong>activate_license</strong> application today for our upcoming beta testing program for EMUEMU._</p>
 </blockquote>
-<p>![[Pasted image 20221208000400.png]]</p>
+<p><img src="/Pasted-image-20221208000400.png" alt="Image alt"></p>
 <h3 id="getting-foothold">Getting FootHold:</h3>
 <ul>
 <li>
@@ -705,17 +705,17 @@ Upload License Key File</p>
 </span></span></code></pre></div><ul>
 <li>
 <p>ChatGPT opinion:
-![[Pasted image 20221208165806.png]]</p>
+<img src="/Pasted-image-20221208165806.png" alt="Image alt"></p>
 </li>
 <li>
 <p>Actually the probem here is not with the read function itslef. It&rsquo;s with reading the message len from the user input and then attempt to read <code>msglen</code> from the user input into a limited size <code>buffer</code> variable.</p>
 </li>
 </ul>
-<p>![[buffer-1.png]]</p>
+<p><img src="/buffer-1.png" alt="Image alt"></p>
 <ul>
 <li>So now if i enter the <code>msglen</code> as <code>520 bytes</code> the program will attempt to read 520 bytes from the <code>sockfd</code> into a 512 bytes <code>buffer</code> variable. Overflow!!!</li>
 </ul>
-<p>![[buffer-2.png]]</p>
+<p><img src="/buffer-2.png" alt="Image alt"></p>
 <ul>
 <li>The most important question how to communicate wirh a process litning at localhost?
 <ul>
