@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 0xh41</copyright>
-    <lastBuildDate>Thu, 15 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://hassan-al-achek.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 17 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://hassan-al-achek.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Shoppy From Hack The Box - Easy Linux Machine</title>
+      <link>https://hassan-al-achek.github.io/posts/shoppy-htb-machine/</link>
+      <pubDate>Sat, 17 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://hassan-al-achek.github.io/posts/shoppy-htb-machine/</guid>
+      <description>Recon: Nmap Scan: Quick Nmap Scan: Open Ports: 80 (http) - 22 (ssh) goku@exploitation:~$ export IP=10.10.11.180 goku@exploitation:~$ nmap $IP Starting Nmap 7.93 ( https://nmap.org ) at 2022-12-16 04:23 CET Nmap scan report for 10.10.11.180 Host is up (0.026s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 0.56 seconds goku@exploitation:~$ Nmap Full Scan: Open Ports: 80 (http) - 22 (ssh) - 9093 (copycat) goku@exploitation:~$ nmap -p- $IP Starting Nmap 7.</description>
+    </item>
+    
     <item>
       <title>PhotBomb From Hack The Box - Easy Linux Machine</title>
       <link>https://hassan-al-achek.github.io/posts/photobomb-htb-machine/</link>
