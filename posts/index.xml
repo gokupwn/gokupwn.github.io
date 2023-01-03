@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 0xh41</copyright>
-    <lastBuildDate>Sat, 17 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://hassan-al-achek.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 03 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://hassan-al-achek.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>UpDown From Hack The Box - Medium Linux Machine</title>
+      <link>https://hassan-al-achek.github.io/posts/updown-htb-machine/</link>
+      <pubDate>Tue, 03 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://hassan-al-achek.github.io/posts/updown-htb-machine/</guid>
+      <description>Recon Quick Nmap Scan goku@exploitation:~$ IP=10.10.11.177 goku@exploitation:~$ nmap -Pn $IP Starting Nmap 7.93 ( https://nmap.org ) at 2022-12-29 21:46 CET Nmap scan report for 10.10.11.177 Host is up (0.030s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 0.60 seconds Open ports: 22 (ssh) - 80 (http) Full Nmap Scan goku@exploitation:~$ nmap -p- -Pn $IP Starting Nmap 7.</description>
+    </item>
+    
     <item>
       <title>Shoppy From Hack The Box - Easy Linux Machine</title>
       <link>https://hassan-al-achek.github.io/posts/shoppy-htb-machine/</link>
