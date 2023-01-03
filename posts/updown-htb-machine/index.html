@@ -111,20 +111,20 @@
 <ul>
 <li>Web main page:</li>
 </ul>
-<p>![Pasted-image-20221229220204.png]</p>
+<p><img src="Pasted-image-20221229220204.png" alt="Image alt"></p>
 <ul>
 <li>Web Tech Stack:</li>
 </ul>
-<p>![Pasted-image-20221229220249.png]</p>
+<p><img src="Pasted-image-20221229220249.png" alt="Image alt"></p>
 <ul>
 <li>Let&rsquo;s start up our web pentesting tool, BurpSuite, and intercept the check request.</li>
 <li>Request and response with debugging mode off:</li>
 </ul>
-<p>![Pasted-image-20221229220828.png]</p>
+<p><img src="Pasted-image-20221229220828.png" alt="Image alt"></p>
 <ul>
 <li>Request and response with debugging mode on:</li>
 </ul>
-<p>![Pasted-image-20221229221014.png]</p>
+<p><img src="Pasted-image-20221229221014.png" alt="Image alt"></p>
 <h2 id="recon-directory-brute-forcing">Recon: Directory Brute Forcing:</h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>goku@exploitation:~$ dirsearch -u http://siteisup.htb -w /usr/share/seclists/Discovery/Web-Content/raft-large-directories.txt
 </span></span><span style="display:flex;"><span>
@@ -151,16 +151,16 @@
 <ul>
 <li>If we visit the <code>/server-status</code> endpoint directly, we will see the following page:</li>
 </ul>
-<p>![Pasted-image-20221229224933.png]</p>
+<p><img src="Pasted-image-20221229224933.png" alt="Image alt"></p>
 <ul>
 <li>Let&rsquo;s exploit the main web application&rsquo;s functionality to gather data and make requests on behalf of the main server. My expectation is that if the request is originated from the server itself, I will be able to bypass the request restrictions and get the page content by enabling the debug mode. Let&rsquo;s give it a try and enjoy our Server-Side Request Forgery (SSRF).</li>
 </ul>
-<p>![Pasted-image-20221229230409.png]</p>
+<p><img src="Pasted-image-20221229230409.png" alt="Image alt"></p>
 <ul>
 <li>Nice, we were detected guys :)</li>
 <li>Let&rsquo;s try to bypass some security restrictions, but first let&rsquo;s take a look at the request in BurpSuite.</li>
 </ul>
-<p>![Pasted-image-20221229230656.png]</p>
+<p><img src="Pasted-image-20221229230656.png" alt="Image alt"></p>
 <ul>
 <li>I tried several methods to bypass the SSRF protection, but I was unsuccessful.</li>
 </ul>
@@ -193,7 +193,7 @@
 <ul>
 <li>Main page:</li>
 </ul>
-<p>![Pasted-image-20221229223133.png]</p>
+<p><img src="Pasted-image-20221229223133.png" alt="Image alt"></p>
 <ul>
 <li>I tried using the <code>siteisup.htb</code> web app to make the request on behalf of the server, but unfortunately my plan did not work.</li>
 </ul>
@@ -245,7 +245,7 @@ It is generally a good practice to ensure that the <code>.git</code> directory i
 <p><code>/dev/.git</code> Endpoint:</p>
 </li>
 </ul>
-<p>![Pasted-image-20221230083657.png]</p>
+<p><img src="Pasted-image-20221230083657.png" alt="Image alt"></p>
 <p><a href="https://pentester.land/blog/source-code-disclosure-via-exposed-git-folder/">External resource: exploiting exposed .git directory - pentester.land</a></p>
 <h2 id="obtaining-the-secrets">Obtaining the secrets:</h2>
 <ul>
@@ -351,15 +351,15 @@ It is generally a good practice to ensure that the <code>.git</code> directory i
 <p>Let&rsquo;s configure Burp Suite to include this header:</p>
 </li>
 </ul>
-<p>![Pasted-image-20221230121741.png]</p>
+<p><img src="Pasted-image-20221230121741.png" alt="Image alt"></p>
 <ul>
 <li>Enjoy!</li>
 </ul>
-<p>![Pasted-image-20221230121832.png]</p>
+<p><img src="Pasted-image-20221230121832.png" alt="Image alt"></p>
 <ul>
 <li>To browse the website using a browser, i used an extension called <code>Modify Header Value (HTTP Headers)</code></li>
 </ul>
-<p>![Pasted-image-20221230131555.png]</p>
+<p><img src="Pasted-image-20221230131555.png" alt="Image alt"></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>goku@exploitation:~/siteisup-dev$ cat changelog.txt
 </span></span><span style="display:flex;"><span>Beta version
 </span></span><span style="display:flex;"><span>
@@ -535,7 +535,7 @@ It is generally a good practice to ensure that the <code>.git</code> directory i
 </span></span></code></pre></div><ul>
 <li>Let&rsquo;s upload the file for checking:</li>
 </ul>
-<p>![Pasted-image-20230102234151.png]</p>
+<p><img src="Pasted-image-20230102234151.png" alt="Image alt"></p>
 <ul>
 <li>
 <p>After uploading the <code>footHold.phar</code> file, the web application will start checking every URL within the uploaded file.</p>
@@ -580,16 +580,16 @@ It is generally a good practice to ensure that the <code>.git</code> directory i
 <ul>
 <li>From an attacker&rsquo;s perspective, we can upload a file with multiple links to gain more time before our uploaded file is deleted. Then, we can go to the <code>uploads/&lt;randomly_generated_directory_name&gt;</code> directory and click the uploaded file to see the results of the embedded PHP code.</li>
 </ul>
-<p>![Pasted-image-20230102235728.png]</p>
-<p>![Pasted-image-20230102235752.png]</p>
+<p><img src="Pasted-image-20230102235728.png" alt="Image alt"></p>
+<p><img src="Pasted-image-20230102235752.png" alt="Image alt"></p>
 <ul>
 <li>Okay, now that we have executed the <code>phpinfo()</code> function, we can start the process of creating our PHP reverse shell.</li>
 </ul>
-<p>![Pasted-image-20230102235831.png]</p>
+<p><img src="Pasted-image-20230102235831.png" alt="Image alt"></p>
 <ul>
 <li>Let&rsquo;s check the <code>disable_functions</code> section to get an idea about the allowed and disabled PHP functions:</li>
 </ul>
-<p>![Pasted-image-20230103000203.png]</p>
+<p><img src="Pasted-image-20230103000203.png" alt="Image alt"></p>
 <ul>
 <li>Here is the PHP reverse shell that I used:</li>
 </ul>
