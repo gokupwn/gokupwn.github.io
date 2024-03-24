@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>0xh41 | Blog</title>
+    <title>gokupwn | Blog</title>
     <link>https://gokupwn.github.io/</link>
-    <description>Recent content on 0xh41 | Blog</description>
+    <description>Recent content on gokupwn | Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>© 0xh41</copyright>
+    <copyright>© gokupwn</copyright>
     <lastBuildDate>Tue, 03 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://gokupwn.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>UpDown From Hack The Box - Medium Linux Machine</title>
@@ -52,7 +52,7 @@ On what day was Santa&amp;rsquo;s naughty and nice list stolen? Based on the res
       <pubDate>Tue, 29 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>https://gokupwn.github.io/about/</guid>
-      <description>Hello Friends!, I am gokupwn (0xh41)
+      <description>Hello Friends!, I am gokupwn (gokupwn)
 https://github.com/gokupwn/shootCutMe.git https://github.com/gokupwn/LinuxPrivilegeEscalation.git https://github.com/gokupwn/Method.git https://github.com/gokupwn/TheArtOfExploitationSheetCheat.git https://github.com/gokupwn/netdeath.git I am an Electrical and Telecommunication Engineer, Offensive Security Enthusiast, Programmer, Back-End Web Application Developer.
 You can reach me via Mail.</description>
     </item>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on 0xh41 | Blog</title>
+    <title>Posts on gokupwn | Blog</title>
     <link>https://gokupwn.github.io/posts/</link>
-    <description>Recent content in Posts on 0xh41 | Blog</description>
+    <description>Recent content in Posts on gokupwn | Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>© 0xh41</copyright>
+    <copyright>© gokupwn</copyright>
     <lastBuildDate>Tue, 03 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://gokupwn.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>UpDown From Hack The Box - Medium Linux Machine</title>
